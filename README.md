@@ -4,7 +4,7 @@
 
 🧪 Quickly experiment with Solidity using a frontend that adapts to your smart contract:
 
-![image](https://user-images.githubusercontent.com/2653167/124158108-c14ca380-da56-11eb-967e-69cde37ca8eb.png)
+![image](https://2958401806-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FDz1PgCN0WeiWDNrmpiG5%2Fuploads%2FkenJxmF7j4Ot7WWSRWBS%2FCripto%20Loteri%CC%81a%402x.png?alt=media&token=d66e608f-162f-4011-8805-4009a2acb4ad)
 
 
 # 🏄‍♂️ Quick Start
