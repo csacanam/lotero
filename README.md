@@ -2,7 +2,7 @@
 
 > The cryptolottery with the highest chance of winning (10%)! 🚀
 
-🧪 Quickly experiment with Solidity using a frontend that adapts to your smart contract:
+🧪 Lotero is a decentralized application (DApp) that allows people to bet their cryptocurrencies and multiply them by 5 with a probability of 10%.:
 
 ![image](https://2958401806-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FDz1PgCN0WeiWDNrmpiG5%2Fuploads%2FkenJxmF7j4Ot7WWSRWBS%2FCripto%20Loteri%CC%81a%402x.png?alt=media&token=d66e608f-162f-4011-8805-4009a2acb4ad)
 
