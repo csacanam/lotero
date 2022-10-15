@@ -1,6 +1,6 @@
-# 🏗 Scaffold-ETH
+# Lotero
 
-> everything you need to build on Ethereum! 🚀
+> The cryptolottery with the highest chance of winning (10%)! 🚀
 
 🧪 Quickly experiment with Solidity using a frontend that adapts to your smart contract:
 
