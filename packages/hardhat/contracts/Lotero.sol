@@ -245,7 +245,8 @@ contract Lotero {
     */
     modifier checkBetCouldBePayed(uint betId, uint256 amount) {
         uint256 possibleNewAmount = amount + getMaxBetAmountInBet(betId);
-        require(address(this).balance >= possibleNewAmount * MIN_WIN_MULTIPLIER, "Not enough money in balance to add this bet");
+        //@TODO Check if the multiplier should be added again
+        require(address(this).balance >= possibleNewAmount, "Not enough money in balance to add this bet");
         _;
     }
 
