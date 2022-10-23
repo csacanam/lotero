@@ -8,7 +8,6 @@ contract Lotero {
         bool voted;  //if true, that person already voted
         uint betId;   //index of the bet
         uint256 amount; //player bet
-
     }
 
     struct Bet {
@@ -21,7 +20,7 @@ contract Lotero {
     }
 
     struct User {
-        uint256 user; //the user
+        address user; //the user
         uint256 moneyAdded; //money added to the contract by the user
         uint256 moneyEarned; //money earned by the user
         uint256 totalDebt; //amount of money the user can claim
@@ -36,12 +35,12 @@ contract Lotero {
 
     uint256 public activeBet;
 
-    mapping(uint256 => User) infoPerUser; //information per user
-    User [] users; //users
+    mapping(address => User) infoPerUser; //information per user
+    User [] public users; //users
 
-    uint256 totalMoneyAdded; //total money added to the contract by users
-    uint256 totalMoneyEarned; //total money earned by users in the contract
-    uint256 totalBets; //total bets
+    uint256 public totalMoneyAdded; //total money added to the contract by users
+    uint256 public totalMoneyEarned; //total money earned by users in the contract
+    uint256 public totalBets; //total bets
 
     constructor () payable {
         Bet storage firstBet = bets.push();
@@ -50,6 +49,7 @@ contract Lotero {
         firstBet.winnerNumber = ValidNumber.NOT_VALID;
         
         activeBet = 0;
+        totalBets++;
     }
 
     /**
@@ -61,7 +61,7 @@ contract Lotero {
         require(msg.value > 0, "Amount should be greater than 0");
 
         //Get current player
-        Player storage currentPlayer = bets[betId].players[msg.sender];
+        Player memory currentPlayer = bets[betId].players[msg.sender];
         require(!currentPlayer.voted, "Already in the current bet.");
 
         //Update player state
@@ -74,6 +74,22 @@ contract Lotero {
         bets[betId].numberOfPlayers++;
         bets[betId].playersByChoosenNumber[betNumber].push(msg.sender);
         bets[betId].amountByChoosenNumber[betNumber] += currentPlayer.amount;
+
+        //Add user to contract if this is the first time adding money
+        User memory currentUser = infoPerUser[msg.sender];
+        if(currentUser.active == false) {
+            currentUser.active = true;
+            currentUser.user = msg.sender;
+            currentUser.moneyAdded = msg.value;
+            currentUser.moneyEarned = 0;
+            currentUser.totalDebt = 0;
+
+            //Add to users array
+            users.push(currentUser);
+
+            //Add to map
+            infoPerUser[msg.sender] = currentUser;
+        }
 
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
@@ -144,6 +160,7 @@ contract Lotero {
         nextBet.amount = 0;
         nextBet.numberOfPlayers = 0;
         nextBet.winnerNumber = ValidNumber.NOT_VALID;
+        totalBets++;
 
     }
 
@@ -188,6 +205,13 @@ contract Lotero {
     */
     function getTotalMoneyBetWithNumber(uint betId, uint8 choosenNumber) private view returns(uint256) {
         return bets[betId].amountByChoosenNumber[choosenNumber];
+    }
+
+    /**
+     *@dev Get total users in contract
+     */
+    function getTotalUsers() public view returns (uint256) {
+        return users.length;
     }
 
     /**
