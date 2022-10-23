@@ -124,18 +124,80 @@ describe("DApp Testing", function () {
         expect(Number(moneyInContract)).to.be.equal(12);
       });
 
-      it("The current available quota should be 1", async function () {
-        const quota = await myContract.getAvailableQuotaInBet(0);
+      it("The current available quota for any number different than 1 and 2 should be 2", async function () {
+        const quotaFor0 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
+        const quotaFor3 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
+        const quotaFor4 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
+        const quotaFor5 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
+        const quotaFor6 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
+        const quotaFor7 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
+        const quotaFor8 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
+        const quotaFor9 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
 
-        expect(Number(quota)).to.be.equal(1);
+        expect(Number(quotaFor0)).to.be.equal(2);
+        expect(Number(quotaFor3)).to.be.equal(2);
+        expect(Number(quotaFor4)).to.be.equal(2);
+        expect(Number(quotaFor5)).to.be.equal(2);
+        expect(Number(quotaFor6)).to.be.equal(2);
+        expect(Number(quotaFor7)).to.be.equal(2);
+        expect(Number(quotaFor8)).to.be.equal(2);
+        expect(Number(quotaFor9)).to.be.equal(2);
       });
 
-      it("Get max amount in bet should be equals to 1", async function () {
-        const maxAmount = await myContract.getMaxBetAmountInBet(0);
+      it("The current available quota for number 1 and 2 should be 1", async function () {
+        const quotaFor1 = await myContract.getAvailableQuotaInBetPerNumber(0, 1);
+        const quotaFor2 = await myContract.getAvailableQuotaInBetPerNumber(0, 2);
 
-        expect(Number(maxAmount)).to.be.equal(1);
+        expect(Number(quotaFor1)).to.be.equal(1);
+        expect(Number(quotaFor2)).to.be.equal(1);
+
       });
 
+      it("Get max amount in bet for number 1 and 2 should be equal to 1", async function () {
+        const maxAmountFor1 = await myContract.getMaxBetAmountInBet(0, 1);
+        const maxAmountFor2 = await myContract.getMaxBetAmountInBet(0, 2);
+
+        expect(Number(maxAmountFor1)).to.be.equal(1);
+        expect(Number(maxAmountFor2)).to.be.equal(1);
+
+      });
+
+      it("Get max amount in bet for any number different than 1 and 2 should be equal to 0", async function () {
+        const maxAmountFor0 = await myContract.getMaxBetAmountInBet(0, 0);
+        const maxAmountFor3 = await myContract.getMaxBetAmountInBet(0, 3);
+        const maxAmountFor4 = await myContract.getMaxBetAmountInBet(0, 3);
+        const maxAmountFor5 = await myContract.getMaxBetAmountInBet(0, 3);
+        const maxAmountFor6 = await myContract.getMaxBetAmountInBet(0, 3);
+        const maxAmountFor7 = await myContract.getMaxBetAmountInBet(0, 3);
+        const maxAmountFor8 = await myContract.getMaxBetAmountInBet(0, 3);
+        const maxAmountFor9 = await myContract.getMaxBetAmountInBet(0, 3);
+
+        expect(Number(maxAmountFor0)).to.be.equal(0);
+        expect(Number(maxAmountFor3)).to.be.equal(0);
+        expect(Number(maxAmountFor4)).to.be.equal(0);
+        expect(Number(maxAmountFor5)).to.be.equal(0);
+        expect(Number(maxAmountFor6)).to.be.equal(0);
+        expect(Number(maxAmountFor7)).to.be.equal(0);
+        expect(Number(maxAmountFor8)).to.be.equal(0);
+        expect(Number(maxAmountFor9)).to.be.equal(0);
+
+      });
+
+      it("Quota for 1 and 2 should be 1. The rest should be 2.", async function () {
+        const quotas = await myContract.getAvailableQuotaInBet(0);
+
+        expect(Number(quotas[0].availableQuota)).to.be.equal(2);
+        expect(Number(quotas[1].availableQuota)).to.be.equal(1);
+        expect(Number(quotas[2].availableQuota)).to.be.equal(1);
+        expect(Number(quotas[3].availableQuota)).to.be.equal(2);
+        expect(Number(quotas[4].availableQuota)).to.be.equal(2);
+        expect(Number(quotas[5].availableQuota)).to.be.equal(2);
+        expect(Number(quotas[6].availableQuota)).to.be.equal(2);
+        expect(Number(quotas[7].availableQuota)).to.be.equal(2);
+        expect(Number(quotas[8].availableQuota)).to.be.equal(2);
+        expect(Number(quotas[9].availableQuota)).to.be.equal(2);
+
+      });
 
     });
 

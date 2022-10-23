@@ -27,6 +27,11 @@ contract Lotero {
         bool active; //if true, user has activated the account
     }
 
+    struct Quota {
+        uint8 number; //the number
+        uint256 availableQuota; //available quota per number
+    }
+
     enum ValidNumber {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, NOT_VALID}
 
     Bet[] public bets;
@@ -56,7 +61,7 @@ contract Lotero {
     * @dev Add money to the bet with index betId
     * @param betId index of bet in the bets array
     */
-    function bet(uint betId, uint8 betNumber) public payable isValidNumber(betNumber) checkBetCouldBePayed(betId, msg.value) {
+    function bet(uint betId, uint8 betNumber) public payable isValidNumber(betNumber) checkBetCouldBePayed(betId, msg.value, betNumber) {
         //Bet should be greater than 0
         require(msg.value > 0, "Amount should be greater than 0");
 
@@ -131,8 +136,25 @@ contract Lotero {
     *@dev Get available quota to add in the bet
     *@param betId the bet index
     */
-    function getAvailableQuotaInBet(uint betId) public view returns(uint256) {
-        return (address(this).balance - (getMaxBetAmountInBet(betId)*MAX_WIN_MULTIPLIER))/MAX_WIN_MULTIPLIER;
+    function getAvailableQuotaInBet(uint betId) public view returns(Quota[10] memory) {
+        Quota [10] memory quotas;
+        for(uint8 i = 0; i<=9; i++){
+            Quota memory quota;
+            quota.number = i;
+            quota.availableQuota = (address(this).balance - (getMaxBetAmountInBet(betId, i)*MAX_WIN_MULTIPLIER))/MAX_WIN_MULTIPLIER;
+            quotas[i]= quota;
+        }
+
+        return quotas;
+    }
+
+    /**
+    *@dev Get available quota to add in the bet per number
+    *@param betId the bet index
+    *@param choosenNumber the choosen number
+    */
+    function getAvailableQuotaInBetPerNumber(uint betId, uint8 choosenNumber) public view returns(uint256) {
+        return (address(this).balance - (getMaxBetAmountInBet(betId, choosenNumber)*MAX_WIN_MULTIPLIER))/MAX_WIN_MULTIPLIER;
     }
 
     /**
@@ -168,17 +190,8 @@ contract Lotero {
     *@dev Get max amount bet on any number
     *@param betId the bet index
     */
-    function getMaxBetAmountInBet(uint betId) public view returns(uint256) {
-        uint256 maxAmount = 0;
-
-        //Loop from 0 to 9
-        for(uint8 i = 0; i < 10; i++) {  
-            if(bets[betId].amountByChoosenNumber[i] > maxAmount) {
-                maxAmount = bets[betId].amountByChoosenNumber[i];
-            }
-        }
-
-        return maxAmount;
+    function getMaxBetAmountInBet(uint betId, uint8 choosenNumber) public view returns(uint256) {
+        return bets[betId].amountByChoosenNumber[choosenNumber];
     }
 
     /**
@@ -211,9 +224,9 @@ contract Lotero {
     @param betId bet index
     *@param amount the amount to be validated
     */
-    modifier checkBetCouldBePayed(uint betId, uint256 amount) {
+    modifier checkBetCouldBePayed(uint betId, uint256 amount, uint8 choosenNumber) {
         require(amount <= 10 ether, "Amount should be equal or less than 10");
-        uint256 possibleNewAmount = amount + getMaxBetAmountInBet(betId);
+        uint256 possibleNewAmount = amount + getMaxBetAmountInBet(betId, choosenNumber);
         require(address(this).balance >= possibleNewAmount * MAX_WIN_MULTIPLIER, "Not enough money in contract to add this bet");
         _;
     }
