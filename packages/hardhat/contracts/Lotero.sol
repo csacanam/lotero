@@ -32,8 +32,6 @@ contract Lotero {
 
     Bet[] public bets;
 
-    uint8 public constant MIN_WIN_MULTIPLIER = 2;
-
     uint8 public constant MAX_WIN_MULTIPLIER = 5;
 
     uint256 public activeBet;
@@ -118,7 +116,7 @@ contract Lotero {
     *@param betId the bet index
     */
     function getAvailableQuotaInBet(uint betId) public view returns(uint256) {
-        return (address(this).balance - (getMaxBetAmountInBet(betId)*MIN_WIN_MULTIPLIER))/MIN_WIN_MULTIPLIER;
+        return (address(this).balance - (getMaxBetAmountInBet(betId)*MAX_WIN_MULTIPLIER))/MAX_WIN_MULTIPLIER;
     }
 
     /**
@@ -130,12 +128,12 @@ contract Lotero {
         address [] memory winners = bets[activeBet].playersByChoosenNumber[uint8(winningNumber)];
 
         //Get de winning multiplier (from 2 to 5)
-        uint8 winningMultiplier = getWinnerMultiplier(winningNumber);
+        //uint8 winningMultiplier = getWinnerMultiplier(winningNumber);
 
         //Pay to winners - Fix this. The contract should not pay to winners. Winners should claim their earnings.
         for(uint8 i = 0; i < winners.length; i++) { 
-            //address payable winner = payable(winners[i]);
-            //winner.transfer(bets[activeBet].players[winner].amount * winningMultiplier);
+            address payable winner = payable(winners[i]);
+            winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
         }
 
         //Increase bet index
@@ -147,60 +145,6 @@ contract Lotero {
         nextBet.numberOfPlayers = 0;
         nextBet.winnerNumber = ValidNumber.NOT_VALID;
 
-    }
-
-    /**
-    *@dev Get current winner multipler for current bet
-    */
-    function getWinnerMultiplier(ValidNumber winningNumber) public view isValidNumber(uint8(winningNumber)) returns (uint8) {
-
-        uint8 currentMultiplier = MAX_WIN_MULTIPLIER;
-
-        while(currentMultiplier >= MIN_WIN_MULTIPLIER){
-            if (bets[activeBet].amountByChoosenNumber[uint8(winningNumber)] * currentMultiplier < address(this).balance){
-                break;
-            }else{
-                currentMultiplier--;
-            }
-        }
-
-        return currentMultiplier;
-    }
-
-    /**
-    *@dev Get current min win multipler for current bet
-    */
-    function getMinMultiplier() public view returns (uint8) {
-
-        uint8 currentMultiplier = MAX_WIN_MULTIPLIER;
-
-        while(currentMultiplier >= MIN_WIN_MULTIPLIER){
-            if (getMaxBetAmountInBet(activeBet) * currentMultiplier < address(this).balance){
-                break;
-            }else{
-                currentMultiplier--;
-            }
-        }
-
-        return currentMultiplier;
-    }
-
-    /**
-    *@dev Get current max win multipler for current bet
-    */
-    function getMaxMultiplier() public view returns (uint8) {
-
-        uint8 currentMultiplier = MAX_WIN_MULTIPLIER;
-
-        while(currentMultiplier >= MIN_WIN_MULTIPLIER){
-            if (getMinBetAmountInBet(activeBet) * currentMultiplier < address(this).balance){
-                break;
-            }else{
-                currentMultiplier--;
-            }
-        }
-
-        return currentMultiplier;
     }
 
     /**
