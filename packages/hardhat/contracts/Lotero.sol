@@ -182,23 +182,6 @@ contract Lotero {
     }
 
     /**
-    *@dev Get min amount bet on any number
-    *@param betId the bet index
-    */
-    function getMinBetAmountInBet(uint betId) public view returns(uint256) {
-        uint256 minAmount = bets[betId].amountByChoosenNumber[0];
-
-        //Loop from 0 to 9
-        for(uint8 i = 1; i < 10; i++) {  
-            if(bets[betId].amountByChoosenNumber[i] < minAmount) {
-                minAmount = bets[betId].amountByChoosenNumber[i];
-            }
-        }
-
-        return minAmount;
-    }
-
-    /**
     *@dev Get total money in bet with index betId who choose choosenNumber
     *@param betId the bet index
     *@param choosenNumber the choosen number

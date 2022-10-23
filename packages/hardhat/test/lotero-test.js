@@ -24,7 +24,7 @@ describe("DApp Testing", function () {
         //Get first bet
         const bet = await myContract.bets(0);
 
-        expect(Number(await bet[0])).to.be.equal(1);
+        expect(Number(bet.amount)).to.be.equal(1);
       });
 
       it("Should be increased the total amount in contract", async function () {
@@ -34,8 +34,8 @@ describe("DApp Testing", function () {
 
         const previousBalance = Number(await ethers.provider.getBalance(myContract.address));
 
-        //Add 1 wei to bet 0 with number 1
-        await contractAsAccount2.bet(0, 1, { value: 1 });
+        //Add 1 wei to bet 0 with number 2
+        await contractAsAccount2.bet(0, 2, { value: 1 });
 
         const currentBalance = Number(await ethers.provider.getBalance(myContract.address));
 
@@ -85,6 +85,57 @@ describe("DApp Testing", function () {
 
         expect(totalBets).to.be.equal(1);
       });
+
+      it("There should be two players in first bet", async function () {
+        const bet = await myContract.bets(0);
+
+        expect(bet.numberOfPlayers).to.be.equal(Number(2));
+      });
+
+      it("The winner number should be 10 because there is not a winner", async function () {
+        const bet = await myContract.bets(0);
+
+        expect(bet.winnerNumber).to.be.equal(Number(10));
+      });
+
+      it("The current bet should have 2 wei in deposited amount", async function () {
+        const bet = await myContract.bets(0);
+
+        expect(Number(bet.amount)).to.be.equal(2);
+      });
+
+      it("Active bet should be bet 0", async function () {
+        const bet = await myContract.activeBet();
+
+        expect(Number(bet)).to.be.equal(0);
+      });
+
+      it("There should be only 1 player who choose number 1 and number 2", async function () {
+        const numberOfPlayersWhoChoose1 = await myContract.getPlayersWhoChooseNumberInBet(0,1);
+        const numberOfPlayersWhoChoose2 = await myContract.getPlayersWhoChooseNumberInBet(0,2);
+
+        expect(numberOfPlayersWhoChoose1.length).to.be.equal(1);
+        expect(numberOfPlayersWhoChoose2.length).to.be.equal(1);
+      });
+
+      it("The total money in contract should be 12", async function () {
+        const moneyInContract = await myContract.getMoneyInContract();
+
+        expect(Number(moneyInContract)).to.be.equal(12);
+      });
+
+      it("The current available quota should be 1", async function () {
+        const quota = await myContract.getAvailableQuotaInBet(0);
+
+        expect(Number(quota)).to.be.equal(1);
+      });
+
+      it("Get max amount in bet should be equals to 1", async function () {
+        const maxAmount = await myContract.getMaxBetAmountInBet(0);
+
+        expect(Number(maxAmount)).to.be.equal(1);
+      });
+
 
     });
 
