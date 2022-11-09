@@ -49,6 +49,7 @@
     "react": "^17.0.2",
     "react-blockies": "^1.4.1",
     "react-css-theme-switcher": "^0.2.2",
+    "react-date-countdown-timer": "^1.1.0",
     "react-dom": "^17.0.2",
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.2.0",
@@ -97,6 +98,6 @@
     "ship": "yarn surge",
     "theme": "npx gulp less",
     "watch": "node ./scripts/watch.js",
-    "prettier": "npx prettier --write . '!(node_module|build)/**/*'"
+    "prettier": "prettier --write '**/*.{js,jsx}' '!(node_module|build)/**/*'"
   }
 }
