@@ -17,21 +17,21 @@ import {
   Account,
   Contract,
   Faucet,
+  FaucetHint,
   GasGauge,
   Header,
+  NetworkDisplay,
+  NetworkSwitch,
   Ramp,
   ThemeSwitch,
-  NetworkDisplay,
-  FaucetHint,
-  NetworkSwitch,
 } from "./components";
-import { NETWORKS, ALCHEMY_KEY } from "./constants";
+import { ALCHEMY_KEY, NETWORKS } from "./constants";
 import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph } from "./views";
 import { useStaticJsonRPC } from "./hooks";
+import { ExampleUI, Hints, Home, Lotero, Subgraph } from "./views";
 
 const { ethers } = require("ethers");
 /*
@@ -315,6 +315,9 @@ function App(props) {
         <Menu.Item key="/subgraph">
           <Link to="/subgraph">Subgraph</Link>
         </Menu.Item>
+        <Menu.Item key="/lotero">
+          <Link to="/lotero">Lotero</Link>
+        </Menu.Item>
       </Menu>
 
       <Switch>
@@ -390,6 +393,9 @@ function App(props) {
             writeContracts={writeContracts}
             mainnetProvider={mainnetProvider}
           />
+        </Route>
+        <Route path="/lotero">
+          <Lotero contract={readContracts.Lotero} />
         </Route>
       </Switch>
 
