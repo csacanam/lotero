@@ -8,6 +8,7 @@ contract Lotero {
         bool voted;  //if true, that person already voted
         uint betId;   //index of the bet
         uint256 amount; //player bet
+        uint8 selectedNumber; //selected number
     }
 
     struct Bet {
@@ -40,7 +41,7 @@ contract Lotero {
 
     uint256 public activeBet;
 
-    mapping(address => User) infoPerUser; //information per user
+    mapping(address => User) public infoPerUser; //information per user
     User [] public users; //users
 
     uint256 public totalMoneyAdded; //total money added to the contract by users
@@ -66,13 +67,14 @@ contract Lotero {
         require(msg.value > 0, "Amount should be greater than 0");
 
         //Get current player
-        Player memory currentPlayer = bets[betId].players[msg.sender];
+        Player storage currentPlayer = bets[betId].players[msg.sender];
         require(!currentPlayer.voted, "Already in the current bet.");
 
         //Update player state
         currentPlayer.voted = true;
         currentPlayer.betId = betId;
         currentPlayer.amount = msg.value;
+        currentPlayer.selectedNumber = betNumber;
 
         //Update bet
         bets[betId].amount += currentPlayer.amount;
@@ -158,6 +160,17 @@ contract Lotero {
     }
 
     /**
+    *@dev Get user information in a specific bet
+    *@param betId the bet index
+    *@param user the user
+    */
+    function getUserInfoInBet(uint betId, address user) public view returns (uint256 amount, uint8 betNumber){
+        Player memory currentPlayer = bets[betId].players[user];
+
+        return (currentPlayer.amount, currentPlayer.selectedNumber);
+    }
+
+    /**
     *@dev Close bet, pay to winners and increase the bet index.
     *
     */
@@ -183,7 +196,6 @@ contract Lotero {
         nextBet.numberOfPlayers = 0;
         nextBet.winnerNumber = ValidNumber.NOT_VALID;
         totalBets++;
-
     }
 
     /**
@@ -209,6 +221,8 @@ contract Lotero {
     function getTotalUsers() public view returns (uint256) {
         return users.length;
     }
+
+    receive() external payable{}
 
     /**
     *@dev Check if number is between 0 and 9
