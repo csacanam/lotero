@@ -26,6 +26,7 @@ contract Lotero {
         uint256 moneyEarned; //money earned by the user
         uint256 totalDebt; //amount of money the user can claim
         bool active; //if true, user has activated the account
+        address referringUser; //the one who refers the user
     }
 
     struct Quota {
@@ -61,8 +62,9 @@ contract Lotero {
     /**
     * @dev Add money to the bet with index betId
     * @param betId index of bet in the bets array
+    * @param referringUser the one who refers the current user
     */
-    function bet(uint betId, uint8 betNumber) public payable isValidNumber(betNumber) checkBetCouldBePayed(betId, msg.value, betNumber) {
+    function bet(uint betId, uint8 betNumber, address referringUser) public payable isValidNumber(betNumber) checkBetCouldBePayed(betId, msg.value, betNumber) {
         //Bet should be greater than 0
         require(msg.value > 0, "Amount should be greater than 0");
 
@@ -90,6 +92,7 @@ contract Lotero {
             currentUser.moneyAdded = msg.value;
             currentUser.moneyEarned = 0;
             currentUser.totalDebt = 0;
+            currentUser.referringUser = referringUser;
 
             //Add to users array
             users.push(currentUser);
@@ -178,13 +181,24 @@ contract Lotero {
 
         address [] memory winners = bets[activeBet].playersByChoosenNumber[uint8(winningNumber)];
 
-        //Get de winning multiplier (from 2 to 5)
+        //Get the winning multiplier (from 2 to 5)
         //uint8 winningMultiplier = getWinnerMultiplier(winningNumber);
 
         //Pay to winners - Fix this. The contract should not pay to winners. Winners should claim their earnings.
         for(uint8 i = 0; i < winners.length; i++) { 
-            address payable winner = payable(winners[i]);
-            winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
+
+            User memory currentWinner = infoPerUser[winners[i]];
+
+            uint256 winnerAmount = bets[activeBet].players[winners[i]].amount * MAX_WIN_MULTIPLIER;
+
+            currentWinner.moneyEarned += winnerAmount;
+            currentWinner.totalDebt += winnerAmount;
+
+            totalMoneyEarned += winnerAmount;
+
+
+            //address payable winner = payable(winners[i]);
+            //winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
         }
 
         //Increase bet index
