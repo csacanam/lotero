@@ -7,25 +7,26 @@ describe("DApp Testing", function () {
   let myContract;
 
   describe("Lotero Contract", function () {
-
     it("Should deploy Lotero contract", async function () {
       const Lotero = await ethers.getContractFactory("Lotero");
 
       myContract = await Lotero.deploy({ value: 10 });
-
     });
 
     describe("First Bet - First Player", function () {
       it("Should be increased the total amount in the bet and in the contract", async function () {
-
         //Get balance previous to bet
-        const previousBalance = Number(await ethers.provider.getBalance(myContract.address));
+        const previousBalance = Number(
+          await ethers.provider.getBalance(myContract.address)
+        );
 
         //Add 1 wei to bet 0 with number 1
         await myContract.bet(0, 1, ethers.constants.AddressZero, { value: 1 });
 
         //Get current balance
-        const currentBalance = Number(await ethers.provider.getBalance(myContract.address));
+        const currentBalance = Number(
+          await ethers.provider.getBalance(myContract.address)
+        );
 
         //Get first bet
         const bet = await myContract.bets(0);
@@ -54,7 +55,6 @@ describe("DApp Testing", function () {
         const players = await myContract.getTotalUsers();
 
         expect(players).to.be.equal(Number(1));
-
       });
 
       it("First user should be active", async function () {
@@ -65,7 +65,7 @@ describe("DApp Testing", function () {
 
       it("First user should have added 1 wei", async function () {
         const player1 = await myContract.users(0);
-        
+
         expect(player1.moneyAdded).to.be.equal(1);
       });
 
@@ -112,7 +112,8 @@ describe("DApp Testing", function () {
       });
 
       it("There should be only 1 player who choose number 1", async function () {
-        const numberOfPlayersWhoChoose1 = await myContract.getPlayersWhoChooseNumberInBet(0,1);
+        const numberOfPlayersWhoChoose1 =
+          await myContract.getPlayersWhoChooseNumberInBet(0, 1);
 
         expect(numberOfPlayersWhoChoose1.length).to.be.equal(1);
       });
@@ -124,15 +125,42 @@ describe("DApp Testing", function () {
       });
 
       it("The current available quota for any number different than 1 should be 2", async function () {
-        const quotaFor0 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
-        const quotaFor2 = await myContract.getAvailableQuotaInBetPerNumber(0, 2);
-        const quotaFor3 = await myContract.getAvailableQuotaInBetPerNumber(0, 3);
-        const quotaFor4 = await myContract.getAvailableQuotaInBetPerNumber(0, 4);
-        const quotaFor5 = await myContract.getAvailableQuotaInBetPerNumber(0, 5);
-        const quotaFor6 = await myContract.getAvailableQuotaInBetPerNumber(0, 6);
-        const quotaFor7 = await myContract.getAvailableQuotaInBetPerNumber(0, 7);
-        const quotaFor8 = await myContract.getAvailableQuotaInBetPerNumber(0, 8);
-        const quotaFor9 = await myContract.getAvailableQuotaInBetPerNumber(0, 9);
+        const quotaFor0 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          0
+        );
+        const quotaFor2 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          2
+        );
+        const quotaFor3 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          3
+        );
+        const quotaFor4 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          4
+        );
+        const quotaFor5 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          5
+        );
+        const quotaFor6 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          6
+        );
+        const quotaFor7 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          7
+        );
+        const quotaFor8 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          8
+        );
+        const quotaFor9 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          9
+        );
 
         expect(Number(quotaFor0)).to.be.equal(2);
         expect(Number(quotaFor2)).to.be.equal(2);
@@ -146,7 +174,10 @@ describe("DApp Testing", function () {
       });
 
       it("The current available quota for number 1 should be 1", async function () {
-        const quotaFor1 = await myContract.getAvailableQuotaInBetPerNumber(0, 1);
+        const quotaFor1 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          1
+        );
 
         expect(Number(quotaFor1)).to.be.equal(1);
       });
@@ -155,7 +186,6 @@ describe("DApp Testing", function () {
         const maxAmountFor1 = await myContract.getMaxBetAmountInBet(0, 1);
 
         expect(Number(maxAmountFor1)).to.be.equal(1);
-
       });
 
       it("Get max amount in bet for any number different than 1 should be equal to 0", async function () {
@@ -178,7 +208,6 @@ describe("DApp Testing", function () {
         expect(Number(maxAmountFor7)).to.be.equal(0);
         expect(Number(maxAmountFor8)).to.be.equal(0);
         expect(Number(maxAmountFor9)).to.be.equal(0);
-
       });
 
       it("Quota for 1 should be 1. The rest should be 2.", async function () {
@@ -194,26 +223,29 @@ describe("DApp Testing", function () {
         expect(Number(quotas[7].availableQuota)).to.be.equal(2);
         expect(Number(quotas[8].availableQuota)).to.be.equal(2);
         expect(Number(quotas[9].availableQuota)).to.be.equal(2);
-
       });
-
     });
 
     describe("First Bet - Second Player", function () {
       it("Should be increased the total amount in the bet and in the contract", async function () {
-
         const [account1, account2] = await ethers.getSigners();
 
         let contractAsAccount2 = myContract.connect(account2);
 
         //Get balance previous to bet
-        const previousBalance = Number(await ethers.provider.getBalance(myContract.address));
+        const previousBalance = Number(
+          await ethers.provider.getBalance(myContract.address)
+        );
 
         //Add 1 wei to bet 0 with number 1
-        await contractAsAccount2.bet(0, 2, ethers.constants.AddressZero, { value: 1 });
+        await contractAsAccount2.bet(0, 2, ethers.constants.AddressZero, {
+          value: 1,
+        });
 
         //Get current balance
-        const currentBalance = Number(await ethers.provider.getBalance(myContract.address));
+        const currentBalance = Number(
+          await ethers.provider.getBalance(myContract.address)
+        );
 
         //Get first bet
         const bet = await myContract.bets(0);
@@ -239,7 +271,7 @@ describe("DApp Testing", function () {
       it("First and second users should have added 1 wei", async function () {
         const player1 = await myContract.users(0);
         const player2 = await myContract.users(1);
-        
+
         expect(player1.moneyAdded).to.be.equal(1);
         expect(player2.moneyAdded).to.be.equal(1);
       });
@@ -287,8 +319,10 @@ describe("DApp Testing", function () {
       });
 
       it("There should be only 1 player who choose number 1 and number 2", async function () {
-        const numberOfPlayersWhoChoose1 = await myContract.getPlayersWhoChooseNumberInBet(0,1);
-        const numberOfPlayersWhoChoose2 = await myContract.getPlayersWhoChooseNumberInBet(0,2);
+        const numberOfPlayersWhoChoose1 =
+          await myContract.getPlayersWhoChooseNumberInBet(0, 1);
+        const numberOfPlayersWhoChoose2 =
+          await myContract.getPlayersWhoChooseNumberInBet(0, 2);
 
         expect(numberOfPlayersWhoChoose1.length).to.be.equal(1);
         expect(numberOfPlayersWhoChoose2.length).to.be.equal(1);
@@ -301,14 +335,38 @@ describe("DApp Testing", function () {
       });
 
       it("The current available quota for any number different than 1 and 2 should be 2", async function () {
-        const quotaFor0 = await myContract.getAvailableQuotaInBetPerNumber(0, 0);
-        const quotaFor3 = await myContract.getAvailableQuotaInBetPerNumber(0, 3);
-        const quotaFor4 = await myContract.getAvailableQuotaInBetPerNumber(0, 4);
-        const quotaFor5 = await myContract.getAvailableQuotaInBetPerNumber(0, 5);
-        const quotaFor6 = await myContract.getAvailableQuotaInBetPerNumber(0, 6);
-        const quotaFor7 = await myContract.getAvailableQuotaInBetPerNumber(0, 7);
-        const quotaFor8 = await myContract.getAvailableQuotaInBetPerNumber(0, 8);
-        const quotaFor9 = await myContract.getAvailableQuotaInBetPerNumber(0, 9);
+        const quotaFor0 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          0
+        );
+        const quotaFor3 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          3
+        );
+        const quotaFor4 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          4
+        );
+        const quotaFor5 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          5
+        );
+        const quotaFor6 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          6
+        );
+        const quotaFor7 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          7
+        );
+        const quotaFor8 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          8
+        );
+        const quotaFor9 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          9
+        );
 
         expect(Number(quotaFor0)).to.be.equal(2);
         expect(Number(quotaFor3)).to.be.equal(2);
@@ -321,8 +379,14 @@ describe("DApp Testing", function () {
       });
 
       it("The current available quota for number 1 and number 2 should be 1", async function () {
-        const quotaFor1 = await myContract.getAvailableQuotaInBetPerNumber(0, 1);
-        const quotaFor2 = await myContract.getAvailableQuotaInBetPerNumber(0, 2);
+        const quotaFor1 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          1
+        );
+        const quotaFor2 = await myContract.getAvailableQuotaInBetPerNumber(
+          0,
+          2
+        );
 
         expect(Number(quotaFor1)).to.be.equal(1);
         expect(Number(quotaFor2)).to.be.equal(1);
@@ -334,7 +398,6 @@ describe("DApp Testing", function () {
 
         expect(Number(maxAmountFor1)).to.be.equal(1);
         expect(Number(maxAmountFor2)).to.be.equal(1);
-
       });
 
       it("Get max amount in bet for any number different than 1 and 2 should be equal to 0", async function () {
@@ -355,7 +418,6 @@ describe("DApp Testing", function () {
         expect(Number(maxAmountFor7)).to.be.equal(0);
         expect(Number(maxAmountFor8)).to.be.equal(0);
         expect(Number(maxAmountFor9)).to.be.equal(0);
-
       });
 
       it("Quota for 1 and 2 should be 1. The rest should be 2.", async function () {
@@ -371,10 +433,7 @@ describe("DApp Testing", function () {
         expect(Number(quotas[7].availableQuota)).to.be.equal(2);
         expect(Number(quotas[8].availableQuota)).to.be.equal(2);
         expect(Number(quotas[9].availableQuota)).to.be.equal(2);
-
       });
-
     });
-
   });
 });
