@@ -22,7 +22,7 @@ describe("DApp Testing", function () {
         const previousBalance = Number(await ethers.provider.getBalance(myContract.address));
 
         //Add 1 wei to bet 0 with number 1
-        await myContract.bet(0, 1, { value: 1 });
+        await myContract.bet(0, 1, ethers.constants.AddressZero, { value: 1 });
 
         //Get current balance
         const currentBalance = Number(await ethers.provider.getBalance(myContract.address));
@@ -210,7 +210,7 @@ describe("DApp Testing", function () {
         const previousBalance = Number(await ethers.provider.getBalance(myContract.address));
 
         //Add 1 wei to bet 0 with number 1
-        await contractAsAccount2.bet(0, 2, { value: 1 });
+        await contractAsAccount2.bet(0, 2, ethers.constants.AddressZero, { value: 1 });
 
         //Get current balance
         const currentBalance = Number(await ethers.provider.getBalance(myContract.address));
