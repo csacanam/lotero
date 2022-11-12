@@ -3,10 +3,9 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 contract Lotero {
-
     struct Player {
-        bool voted;  //if true, that person already voted
-        uint betId;   //index of the bet
+        bool voted; //if true, that person already voted
+        uint betId; //index of the bet
         uint256 amount; //player bet
         uint8 selectedNumber; //selected number
     }
@@ -14,7 +13,7 @@ contract Lotero {
     struct Bet {
         uint256 amount; //number of money accumulated in the bet
         mapping(address => Player) players; //map of players in the bet
-        mapping(uint8 => address []) playersByChoosenNumber; //map of addresses by bet number
+        mapping(uint8 => address[]) playersByChoosenNumber; //map of addresses by bet number
         mapping(uint8 => uint256) amountByChoosenNumber;
         uint256 numberOfPlayers; //number of players in the bet
         ValidNumber winnerNumber;
@@ -34,7 +33,19 @@ contract Lotero {
         uint256 availableQuota; //available quota per number
     }
 
-    enum ValidNumber {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, NOT_VALID}
+    enum ValidNumber {
+        ZERO,
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE,
+        NOT_VALID
+    }
 
     Bet[] public bets;
 
@@ -43,28 +54,37 @@ contract Lotero {
     uint256 public activeBet;
 
     mapping(address => User) public infoPerUser; //information per user
-    User [] public users; //users
+    User[] public users; //users
 
     uint256 public totalMoneyAdded; //total money added to the contract by users
     uint256 public totalMoneyEarned; //total money earned by users in the contract
     uint256 public totalBets; //total bets
 
-    constructor () payable {
+    constructor() payable {
         Bet storage firstBet = bets.push();
         firstBet.amount = 0;
         firstBet.numberOfPlayers = 0;
         firstBet.winnerNumber = ValidNumber.NOT_VALID;
-        
+
         activeBet = 0;
         totalBets++;
     }
 
     /**
-    * @dev Add money to the bet with index betId
-    * @param betId index of bet in the bets array
-    * @param referringUser the one who refers the current user
-    */
-    function bet(uint betId, uint8 betNumber, address referringUser) public payable isValidNumber(betNumber) checkBetCouldBePayed(betId, msg.value, betNumber) {
+     * @dev Add money to the bet with index betId
+     * @param betId index of bet in the bets array
+     * @param referringUser the one who refers the current user
+     */
+    function bet(
+        uint betId,
+        uint8 betNumber,
+        address referringUser
+    )
+        public
+        payable
+        isValidNumber(betNumber)
+        checkBetCouldBePayed(betId, msg.value, betNumber)
+    {
         //Bet should be greater than 0
         require(msg.value > 0, "Amount should be greater than 0");
 
@@ -86,7 +106,7 @@ contract Lotero {
 
         //Add user to contract if this is the first time adding money
         User memory currentUser = infoPerUser[msg.sender];
-        if(currentUser.active == false) {
+        if (currentUser.active == false) {
             currentUser.active = true;
             currentUser.user = msg.sender;
             currentUser.moneyAdded = msg.value;
@@ -106,96 +126,123 @@ contract Lotero {
     }
 
     /**
-    *@dev Get number of players in bet with given index
-    *@param betId the bet index
-    */
-    function getNumberOfPlayersInBet(uint betId) public view returns(uint256) {
+     *@dev Get number of players in bet with given index
+     *@param betId the bet index
+     */
+    function getNumberOfPlayersInBet(uint betId) public view returns (uint256) {
         return bets[betId].numberOfPlayers;
     }
 
     /**
-    *@dev Get amount of money in bet with index betId
-    *@param betId the bet index
-    */
-    function getTotalMoneyInBet(uint betId) public view returns(uint256) {
+     *@dev Get amount of money in bet with index betId
+     *@param betId the bet index
+     */
+    function getTotalMoneyInBet(uint betId) public view returns (uint256) {
         return bets[betId].amount;
     }
 
     /**
-    *@dev Get total money in contract
-    */
-    function getMoneyInContract() public view returns(uint256) {
+     *@dev Get total money in contract
+     */
+    function getMoneyInContract() public view returns (uint256) {
         return address(this).balance;
     }
 
     /**
-    *@dev Get players who choose choosenNumber in bet with index betId
-    *@param betId the bet index
-    *@param choosenNumber the choosen number
-    */
-    function getPlayersWhoChooseNumberInBet(uint betId, uint8 choosenNumber) public view returns(address[] memory) {
+     *@dev Get players who choose choosenNumber in bet with index betId
+     *@param betId the bet index
+     *@param choosenNumber the choosen number
+     */
+    function getPlayersWhoChooseNumberInBet(uint betId, uint8 choosenNumber)
+        public
+        view
+        returns (address[] memory)
+    {
         return bets[betId].playersByChoosenNumber[choosenNumber];
     }
 
     /**
-    *@dev Get available quota to add in the bet
-    *@param betId the bet index
-    */
-    function getAvailableQuotaInBet(uint betId) public view returns(Quota[10] memory) {
-        Quota [10] memory quotas;
-        for(uint8 i = 0; i<=9; i++){
+     *@dev Get available quota to add in the bet
+     *@param betId the bet index
+     */
+    function getAvailableQuotaInBet(uint betId)
+        public
+        view
+        returns (Quota[10] memory)
+    {
+        Quota[10] memory quotas;
+        for (uint8 i = 0; i <= 9; i++) {
             Quota memory quota;
             quota.number = i;
-            quota.availableQuota = (address(this).balance - (getMaxBetAmountInBet(betId, i)*MAX_WIN_MULTIPLIER))/MAX_WIN_MULTIPLIER;
-            quotas[i]= quota;
+            quota.availableQuota =
+                (address(this).balance -
+                    (getMaxBetAmountInBet(betId, i) * MAX_WIN_MULTIPLIER)) /
+                MAX_WIN_MULTIPLIER;
+            quotas[i] = quota;
         }
 
         return quotas;
     }
 
     /**
-    *@dev Get available quota to add in the bet per number
-    *@param betId the bet index
-    *@param choosenNumber the choosen number
-    */
-    function getAvailableQuotaInBetPerNumber(uint betId, uint8 choosenNumber) public view returns(uint256) {
-        return (address(this).balance - (getMaxBetAmountInBet(betId, choosenNumber)*MAX_WIN_MULTIPLIER))/MAX_WIN_MULTIPLIER;
+     *@dev Get available quota to add in the bet per number
+     *@param betId the bet index
+     *@param choosenNumber the choosen number
+     */
+    function getAvailableQuotaInBetPerNumber(uint betId, uint8 choosenNumber)
+        public
+        view
+        returns (uint256)
+    {
+        return
+            (address(this).balance -
+                (getMaxBetAmountInBet(betId, choosenNumber) *
+                    MAX_WIN_MULTIPLIER)) / MAX_WIN_MULTIPLIER;
     }
 
     /**
-    *@dev Get user information in a specific bet
-    *@param betId the bet index
-    *@param user the user
-    */
-    function getUserInfoInBet(uint betId, address user) public view returns (uint256 amount, uint8 betNumber){
+     *@dev Get user information in a specific bet
+     *@param betId the bet index
+     *@param user the user
+     */
+    function getUserInfoInBet(uint betId, address user)
+        public
+        view
+        returns (uint256 amount, uint8 betNumber)
+    {
         Player memory currentPlayer = bets[betId].players[user];
 
         return (currentPlayer.amount, currentPlayer.selectedNumber);
     }
 
     /**
-    *@dev Close bet, pay to winners and increase the bet index.
-    *
-    */
-    function closeBet(ValidNumber winningNumber) public payable currentBetIsActive isValidNumber(uint8(winningNumber)){
-
-        address [] memory winners = bets[activeBet].playersByChoosenNumber[uint8(winningNumber)];
+     *@dev Close bet, pay to winners and increase the bet index.
+     *
+     */
+    function closeBet(ValidNumber winningNumber)
+        public
+        payable
+        currentBetIsActive
+        isValidNumber(uint8(winningNumber))
+    {
+        address[] memory winners = bets[activeBet].playersByChoosenNumber[
+            uint8(winningNumber)
+        ];
 
         //Get the winning multiplier (from 2 to 5)
         //uint8 winningMultiplier = getWinnerMultiplier(winningNumber);
 
         //Pay to winners - Fix this. The contract should not pay to winners. Winners should claim their earnings.
-        for(uint8 i = 0; i < winners.length; i++) { 
-
+        for (uint8 i = 0; i < winners.length; i++) {
             User memory currentWinner = infoPerUser[winners[i]];
 
-            uint256 winnerAmount = bets[activeBet].players[winners[i]].amount * MAX_WIN_MULTIPLIER;
+            uint256 winnerAmount = bets[activeBet].players[winners[i]].amount *
+                MAX_WIN_MULTIPLIER;
 
             currentWinner.moneyEarned += winnerAmount;
             currentWinner.totalDebt += winnerAmount;
 
             totalMoneyEarned += winnerAmount;
-
 
             //address payable winner = payable(winners[i]);
             //winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
@@ -213,19 +260,27 @@ contract Lotero {
     }
 
     /**
-    *@dev Get max amount bet on any number
-    *@param betId the bet index
-    */
-    function getMaxBetAmountInBet(uint betId, uint8 choosenNumber) public view returns(uint256) {
+     *@dev Get max amount bet on any number
+     *@param betId the bet index
+     */
+    function getMaxBetAmountInBet(uint betId, uint8 choosenNumber)
+        public
+        view
+        returns (uint256)
+    {
         return bets[betId].amountByChoosenNumber[choosenNumber];
     }
 
     /**
-    *@dev Get total money in bet with index betId who choose choosenNumber
-    *@param betId the bet index
-    *@param choosenNumber the choosen number
-    */
-    function getTotalMoneyBetWithNumber(uint betId, uint8 choosenNumber) private view returns(uint256) {
+     *@dev Get total money in bet with index betId who choose choosenNumber
+     *@param betId the bet index
+     *@param choosenNumber the choosen number
+     */
+    function getTotalMoneyBetWithNumber(uint betId, uint8 choosenNumber)
+        private
+        view
+        returns (uint256)
+    {
         return bets[betId].amountByChoosenNumber[choosenNumber];
     }
 
@@ -236,14 +291,14 @@ contract Lotero {
         return users.length;
     }
 
-    receive() external payable{}
+    receive() external payable {}
 
     /**
-    *@dev Check if number is between 0 and 9
-    *@param number the number to be validated
-    */
+     *@dev Check if number is between 0 and 9
+     *@param number the number to be validated
+     */
     modifier isValidNumber(uint8 number) {
-        require(number >= 0 && number <=9, "Not a valid number");
+        require(number >= 0 && number <= 9, "Not a valid number");
         _;
     }
 
@@ -252,20 +307,29 @@ contract Lotero {
     @param betId bet index
     *@param amount the amount to be validated
     */
-    modifier checkBetCouldBePayed(uint betId, uint256 amount, uint8 choosenNumber) {
+    modifier checkBetCouldBePayed(
+        uint betId,
+        uint256 amount,
+        uint8 choosenNumber
+    ) {
         require(amount <= 10 ether, "Amount should be equal or less than 10");
-        uint256 possibleNewAmount = amount + getMaxBetAmountInBet(betId, choosenNumber);
-        require(address(this).balance >= possibleNewAmount * MAX_WIN_MULTIPLIER, "Not enough money in contract to add this bet");
+        uint256 possibleNewAmount = amount +
+            getMaxBetAmountInBet(betId, choosenNumber);
+        require(
+            address(this).balance >= possibleNewAmount * MAX_WIN_MULTIPLIER,
+            "Not enough money in contract to add this bet"
+        );
         _;
     }
 
     /**
-    *@dev Check if current bet is active
-    */
-    modifier currentBetIsActive(){
-        require(bets[activeBet].winnerNumber == ValidNumber.NOT_VALID, "Current bet is not active");
+     *@dev Check if current bet is active
+     */
+    modifier currentBetIsActive() {
+        require(
+            bets[activeBet].winnerNumber == ValidNumber.NOT_VALID,
+            "Current bet is not active"
+        );
         _;
     }
-
-
 }
