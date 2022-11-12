@@ -69,7 +69,7 @@ contract Lotero {
         require(msg.value > 0, "Amount should be greater than 0");
 
         //Get current player
-        Player storage currentPlayer = bets[betId].players[msg.sender];
+        Player memory currentPlayer = bets[betId].players[msg.sender];
         require(!currentPlayer.voted, "Already in the current bet.");
 
         //Update player state
