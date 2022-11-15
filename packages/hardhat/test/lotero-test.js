@@ -440,7 +440,7 @@ describe("DApp Testing", async function () {
     });
 
     //Test Dev Logic
-    describe("Dev Logic", function () {
+    describe("Dev Logic", async function () {
       it("There should be one dev in members list", async function () {
         const [owner, dev1, dev2] = await ethers.getSigners();
 
@@ -494,6 +494,28 @@ describe("DApp Testing", async function () {
         //Remove a team member
         await myContract.removeTeamMember(dev2.address);
 
+        expect(Number(await myContract.getTeamMembersLength())).to.be.equal(1);
+      });
+
+      it("Only owner can add a new dev", async function () {
+        const [owner, dev1, dev2, dev3] = await ethers.getSigners();
+
+        let contractAsDev2 = myContract.connect(dev2);
+
+        await expect(
+          contractAsDev2.addTeamMember(dev2.address, 20)
+        ).to.be.revertedWith("Ownable: caller is not the owner");
+        expect(Number(await myContract.getTeamMembersLength())).to.be.equal(1);
+      });
+
+      it("Only owner can remove a dev", async function () {
+        const [owner, dev1, dev2, dev3] = await ethers.getSigners();
+
+        let contractAsDev2 = myContract.connect(dev2);
+
+        await expect(
+          contractAsDev2.removeTeamMember(dev1.address)
+        ).to.be.revertedWith("Ownable: caller is not the owner");
         expect(Number(await myContract.getTeamMembersLength())).to.be.equal(1);
       });
     });
