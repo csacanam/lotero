@@ -86,7 +86,10 @@ export default function Ramp(props) {
             size="large"
             shape="round"
             onClick={() => {
-              window.open("https://pay.sendwyre.com/purchase?destCurrency=ETH&sourceAmount=25&dest=" + props.address);
+              window.open(
+                "https://pay.sendwyre.com/purchase?destCurrency=ETH&sourceAmount=25&dest=" +
+                  props.address,
+              );
             }}
           >
             <span style={{ paddingRight: 15 }} role="img">

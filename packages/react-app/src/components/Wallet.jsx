@@ -151,7 +151,8 @@ export default function Wallet(props) {
       extraPkDisplay.push(
         <div style={{ fontSize: 16, padding: 2, backgroundStyle: "#89e789" }}>
           <a href={"/pk#" + pk}>
-            <Address minimized address={wallet.address} ensProvider={props.ensProvider} /> {wallet.address.substr(0, 6)}
+            <Address minimized address={wallet.address} ensProvider={props.ensProvider} />{" "}
+            {wallet.address.substr(0, 6)}
           </a>
         </div>,
       );
@@ -159,7 +160,9 @@ export default function Wallet(props) {
         if (key.indexOf("metaPrivateKey_backup") >= 0) {
           const pastpk = localStorage.getItem(key);
           const pastwallet = new ethers.Wallet(pastpk);
-          if (!extraPkDisplayAdded[pastwallet.address] /* && selectedAddress!=pastwallet.address */) {
+          if (
+            !extraPkDisplayAdded[pastwallet.address] /* && selectedAddress!=pastwallet.address */
+          ) {
             extraPkDisplayAdded[pastwallet.address] = true;
             extraPkDisplay.push(
               <div style={{ fontSize: 16 }}>
@@ -212,7 +215,9 @@ export default function Wallet(props) {
                 el.select();
                 document.execCommand("copy");
                 document.body.removeChild(el);
-                message.success(<span style={{ position: "relative" }}>Copied Private Key Link</span>);
+                message.success(
+                  <span style={{ position: "relative" }}>Copied Private Key Link</span>,
+                );
               }}
             >
               <QR value={fullLink} size="450" level="H" includeMargin renderAs="svg" />
@@ -227,7 +232,10 @@ export default function Wallet(props) {
                 onClick={() => {
                   const currentPrivateKey = window.localStorage.getItem("metaPrivateKey");
                   if (currentPrivateKey) {
-                    window.localStorage.setItem("metaPrivateKey_backup" + Date.now(), currentPrivateKey);
+                    window.localStorage.setItem(
+                      "metaPrivateKey_backup" + Date.now(),
+                      currentPrivateKey,
+                    );
                   }
                   const randomWallet = ethers.Wallet.createRandom();
                   const privateKey = randomWallet._signingKey().privateKey;
@@ -325,9 +333,17 @@ export default function Wallet(props) {
         visible={open}
         title={
           <div>
-            {selectedAddress ? <Address address={selectedAddress} ensProvider={props.ensProvider} /> : <Spin />}
+            {selectedAddress ? (
+              <Address address={selectedAddress} ensProvider={props.ensProvider} />
+            ) : (
+              <Spin />
+            )}
             <div style={{ float: "right", paddingRight: 25 }}>
-              <Balance address={selectedAddress} provider={props.provider} dollarMultiplier={props.price} />
+              <Balance
+                address={selectedAddress}
+                provider={props.provider}
+                dollarMultiplier={props.price}
+              />
             </div>
           </div>
         }

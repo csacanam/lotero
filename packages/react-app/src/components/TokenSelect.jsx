@@ -6,7 +6,10 @@ import axios from "axios";
 import searchico from "searchico";
 
 // helpers to load token name and symbol for unlisted tokens
-const ERC20ABI = ["function symbol() view returns (string)", "function name() view returns (string)"];
+const ERC20ABI = [
+  "function symbol() view returns (string)",
+  "function name() view returns (string)",
+];
 
 const loadERC20 = async (address, p) => {
   try {
@@ -29,7 +32,13 @@ const loadERC20 = async (address, p) => {
     nativeToken={{ name: 'Native token', symbol: 'ETH' }}
   />
 */
-export default function TokenSelect({ onChange, chainId = 1, nativeToken = {}, localProvider, ...props }) {
+export default function TokenSelect({
+  onChange,
+  chainId = 1,
+  nativeToken = {},
+  localProvider,
+  ...props
+}) {
   const [value, setValue] = useState(null);
   const [list, setList] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -45,7 +54,11 @@ export default function TokenSelect({ onChange, chainId = 1, nativeToken = {}, l
 
     // use search result to format children
     return searchResults.map(i => (
-      <Select.Option key={i.address} style={{ paddingTop: "5px", paddingBottom: "5px" }} value={i.address}>
+      <Select.Option
+        key={i.address}
+        style={{ paddingTop: "5px", paddingBottom: "5px" }}
+        value={i.address}
+      >
         <div style={{ display: "flex", alignItems: "center" }}>
           {i.logoURI && (
             <div style={{ marginRight: "5px" }}>
@@ -53,7 +66,12 @@ export default function TokenSelect({ onChange, chainId = 1, nativeToken = {}, l
             </div>
           )}
           {i.name} - {i.symbol} {i.address?.substr(0, 5) + "..." + i.address?.substr(-4)}{" "}
-          {i.unlisted && <span style={{ fontStyle: "italic", fontSize: "12px", marginLeft: "3px" }}> (unlisted) </span>}
+          {i.unlisted && (
+            <span style={{ fontStyle: "italic", fontSize: "12px", marginLeft: "3px" }}>
+              {" "}
+              (unlisted){" "}
+            </span>
+          )}
         </div>
       </Select.Option>
     ));

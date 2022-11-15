@@ -14,7 +14,13 @@ const getFunctionInputKey = (functionInfo, input, inputIndex) => {
 
 const isReadable = fn => fn.stateMutability === "view" || fn.stateMutability === "pure";
 
-export default function FunctionForm({ contractFunction, functionInfo, provider, gasPrice, triggerRefresh }) {
+export default function FunctionForm({
+  contractFunction,
+  functionInfo,
+  provider,
+  gasPrice,
+  triggerRefresh,
+}) {
   const [form, setForm] = useState({});
   const [txValue, setTxValue] = useState();
   const [returnValue, setReturnValue] = useState();
@@ -192,7 +198,13 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
                 if (["array", "tuple"].includes(input.baseType)) {
                   value = JSON.parse(value);
                 } else if (input.type === "bool") {
-                  if (value === "true" || value === "1" || value === "0x1" || value === "0x01" || value === "0x0001") {
+                  if (
+                    value === "true" ||
+                    value === "1" ||
+                    value === "0x1" ||
+                    value === "0x01" ||
+                    value === "0x0001"
+                  ) {
                     value = 1;
                   } else {
                     value = 0;
@@ -202,7 +214,10 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
               });
 
               let result;
-              if (functionInfo.stateMutability === "view" || functionInfo.stateMutability === "pure") {
+              if (
+                functionInfo.stateMutability === "view" ||
+                functionInfo.stateMutability === "pure"
+              ) {
                 try {
                   const returned = await contractFunction(...args);
                   handleForm(returned);

@@ -19,7 +19,14 @@ import Address from "./Address";
   />
 **/
 
-export default function Events({ contracts, contractName, eventName, localProvider, mainnetProvider, startBlock }) {
+export default function Events({
+  contracts,
+  contractName,
+  eventName,
+  localProvider,
+  mainnetProvider,
+  startBlock,
+}) {
   // 📟 Listen for broadcast events
   const events = useEventListener(contracts, contractName, eventName, localProvider, startBlock);
 

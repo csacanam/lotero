@@ -22,8 +22,8 @@ function NetworkDisplay({
             message="⚠️ Wrong Network ID"
             description={
               <div>
-                You have <b>chain id 1337</b> for localhost and you need to change it to <b>31337</b> to work with
-                HardHat.
+                You have <b>chain id 1337</b> for localhost and you need to change it to{" "}
+                <b>31337</b> to work with HardHat.
                 <div>(MetaMask -&gt; Settings -&gt; Networks -&gt; Chain ID -&gt; 31337)</div>
               </div>
             }
@@ -39,7 +39,8 @@ function NetworkDisplay({
             message="⚠️ Wrong Network"
             description={
               <div>
-                You have <b>{networkSelected && networkSelected.name}</b> selected and you need to be on{" "}
+                You have <b>{networkSelected && networkSelected.name}</b> selected and you need to
+                be on{" "}
                 <Button
                   onClick={async () => {
                     const ethereum = window.ethereum;
@@ -90,7 +91,16 @@ function NetworkDisplay({
     }
   } else {
     networkDisplay = USE_NETWORK_SELECTOR ? null : (
-      <div style={{ zIndex: -1, position: "absolute", right: 150, top: 25, padding: 16, color: targetNetwork.color }}>
+      <div
+        style={{
+          zIndex: -1,
+          position: "absolute",
+          right: 150,
+          top: 25,
+          padding: 16,
+          color: targetNetwork.color,
+        }}
+      >
         {targetNetwork.name}
       </div>
     );

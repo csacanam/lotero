@@ -1,0 +1,29 @@
+:root {
+    --info-panel-border-color: rgba(255, 255, 255, 0.1);
+}
+
+#lotero-info-panel {
+    background: rgb(26, 33, 45);
+    border: 1px solid var(--info-panel-border-color);
+    border-radius: var(--rounded-small);
+    width: 100%;
+}
+
+#lotero-info-panel ul {
+    color: #8e9db1;
+    font-size: 12px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#lotero-info-panel ul li {
+    border-bottom: 1px solid var(--info-panel-border-color);
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-small);
+}
+
+#lotero-info-panel ul li:last-child {
+    border: none;
+}

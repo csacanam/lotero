@@ -31,7 +31,8 @@ const { Text } = Typography;
   - Provide fontSize={fontSize} to change the size of address text
 **/
 
-const blockExplorerLink = (address, blockExplorer) => `${blockExplorer || "https://etherscan.io/"}address/${address}`;
+const blockExplorerLink = (address, blockExplorer) =>
+  `${blockExplorer || "https://etherscan.io/"}address/${address}`;
 
 export default function Address(props) {
   const { currentTheme } = useThemeSwitcher();
@@ -76,9 +77,19 @@ export default function Address(props) {
   return (
     <span>
       <span style={{ verticalAlign: "middle" }}>
-        <Blockies seed={address.toLowerCase()} size={8} scale={props.fontSize ? props.fontSize / 7 : 4} />
+        <Blockies
+          seed={address.toLowerCase()}
+          size={8}
+          scale={props.fontSize ? props.fontSize / 7 : 4}
+        />
       </span>
-      <span style={{ verticalAlign: "middle", paddingLeft: 5, fontSize: props.fontSize ? props.fontSize : 28 }}>
+      <span
+        style={{
+          verticalAlign: "middle",
+          paddingLeft: 5,
+          fontSize: props.fontSize ? props.fontSize : 28,
+        }}
+      >
         {props.onChange ? (
           <Text editable={{ onChange: props.onChange }} copyable={{ text: address }}>
             <a

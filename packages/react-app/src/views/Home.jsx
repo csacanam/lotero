@@ -21,7 +21,12 @@ function Home({ yourLocalBalance, readContracts }) {
         This Is Your App Home. You can start editing it in{" "}
         <span
           className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+          style={{
+            marginLeft: 4,
+            /* backgroundColor: "#f9f9f9", */ padding: 4,
+            borderRadius: 4,
+            fontWeight: "bolder",
+          }}
         >
           packages/react-app/src/views/Home.jsx
         </span>
@@ -31,14 +36,24 @@ function Home({ yourLocalBalance, readContracts }) {
         Edit your smart contract{" "}
         <span
           className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+          style={{
+            marginLeft: 4,
+            /* backgroundColor: "#f9f9f9", */ padding: 4,
+            borderRadius: 4,
+            fontWeight: "bolder",
+          }}
         >
           YourContract.sol
         </span>{" "}
         in{" "}
         <span
           className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+          style={{
+            marginLeft: 4,
+            /* backgroundColor: "#f9f9f9", */ padding: 4,
+            borderRadius: 4,
+            fontWeight: "bolder",
+          }}
         >
           packages/hardhat/contracts
         </span>
@@ -93,18 +108,30 @@ function Home({ yourLocalBalance, readContracts }) {
       <div style={{ margin: 32 }}>
         <span style={{ marginRight: 8 }}>🤖</span>
         An example prop of your balance{" "}
-        <span style={{ fontWeight: "bold", color: "green" }}>({ethers.utils.formatEther(yourLocalBalance)})</span> was
-        passed into the
+        <span style={{ fontWeight: "bold", color: "green" }}>
+          ({ethers.utils.formatEther(yourLocalBalance)})
+        </span>{" "}
+        was passed into the
         <span
           className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+          style={{
+            marginLeft: 4,
+            /* backgroundColor: "#f9f9f9", */ padding: 4,
+            borderRadius: 4,
+            fontWeight: "bolder",
+          }}
         >
           Home.jsx
         </span>{" "}
         component from
         <span
           className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+          style={{
+            marginLeft: 4,
+            /* backgroundColor: "#f9f9f9", */ padding: 4,
+            borderRadius: 4,
+            fontWeight: "bolder",
+          }}
         >
           App.jsx
         </span>

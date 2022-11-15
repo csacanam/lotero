@@ -1,24 +1,16 @@
-import { Button } from "antd";
-import { tryToDisplay } from "../Contract/utils";
+import "./InfoPanel.css";
 
-export default function InfoPanel({ activeBet, totalBets }) {
-  const previous = {
-    number: 5,
-    date: new Date(),
-    reward: 50,
-  };
-  const current = {
-    bet: 5,
-  };
+export default function InfoPanel({ data }) {
   return (
-    <div>
-      <h3>
-        Last winner number: {previous.number} ({previous.date.toUTCString()})
-      </h3>
-      <h3>Reward: {previous.reward} MATIC</h3>
-      <h3>Bets: {tryToDisplay(totalBets, true)}</h3>
-      <h3>Current bet: {tryToDisplay(activeBet, true)} MATIC</h3>
-      <Button>Withdraw reward</Button>
+    <div id="lotero-info-panel">
+      <ul>
+        {data && data.length > 0 && data.map(item => (
+          <li key={item.label}>
+            <span>{item.label}</span>
+            <span>{item.value}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

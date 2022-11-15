@@ -1,17 +1,16 @@
-import { Divider, Skeleton, Space } from "antd";
+import { Skeleton, Space } from "antd";
 import { useEffect, useState } from "react";
-import Bet from "../components/lotero/Bet";
-import Countdown from "../components/lotero/Countdown";
-import InfoPanel from "../components/lotero/InfoPanel";
+import { LoteroWrapper, Bet } from "../components";
+import "./Lotero.css";
 
-export default function Lotero({ contract }) {
+export default function Lotero({ provider, price, gasPrice, contract }) {
   const [activeBet, setActiveBet] = useState(undefined);
-  const [totalBets, setTotalBets] = useState(undefined);
 
   useEffect(async () => {
-    setActiveBet(await contract.activeBet());
-    setTotalBets(await contract.totalBets());
-  }, [contract, !activeBet, !totalBets]);
+    if (contract) {
+      setActiveBet((await contract.activeBet()).toNumber());
+    }
+  }, [contract, !activeBet]);
 
   if (!contract) {
     return (
@@ -22,14 +21,12 @@ export default function Lotero({ contract }) {
   }
 
   return (
-    <div style={{ width: 300, margin: "auto" }}>
-      <Space direction="vertical" size="small" style={{ display: "flex" }}>
-        <Countdown />
-        <Divider />
-        <Bet contract={contract} />
-        <Divider />
-        <InfoPanel activeBet={activeBet} totalBets={totalBets} />
-      </Space>
+    <div id="lotero">
+      <LoteroWrapper activeBet={activeBet}>
+        <Space direction="vertical" size="small" style={{ display: "flex" }}>
+          <Bet contract={contract} provider={provider} price={price} />
+        </Space>
+      </LoteroWrapper>
     </div>
   );
 }

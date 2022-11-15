@@ -43,7 +43,10 @@ export default function L2ArbitrumBridge({ address, userSigner }) {
   const activeConfig = rollupConfig[rollup][environment];
 
   const selectedChainId =
-    userSigner && userSigner.provider && userSigner.provider._network && userSigner.provider._network.chainId;
+    userSigner &&
+    userSigner.provider &&
+    userSigner.provider._network &&
+    userSigner.provider._network.chainId;
 
   const tx = Transactor(userSigner);
 
@@ -59,7 +62,10 @@ export default function L2ArbitrumBridge({ address, userSigner }) {
     setProviders();
   }, [rollup, activeConfig.L1, activeConfig.L2]);
 
-  const contracts = useContractLoader(userSigner, { externalContracts: L1BridgeMetadata, hardhatContracts: {} });
+  const contracts = useContractLoader(userSigner, {
+    externalContracts: L1BridgeMetadata,
+    hardhatContracts: {},
+  });
 
   useOnBlock(L1Provider, async () => {
     console.log(`⛓ A new mainnet block is here: ${L1Provider._lastBlockNumber}`);
@@ -161,7 +167,15 @@ export default function L2ArbitrumBridge({ address, userSigner }) {
 
   return (
     <div style={{ padding: 16, width: 800, margin: "auto", marginBottom: 128 }}>
-      <div style={{ border: "1px solid #cccccc", padding: 16, width: 800, margin: "auto", marginBottom: 128 }}>
+      <div
+        style={{
+          border: "1px solid #cccccc",
+          padding: 16,
+          width: 800,
+          margin: "auto",
+          marginBottom: 128,
+        }}
+      >
         <h2>Welcome to the L2 Deposit Bridge!</h2>
         <Radio.Group
           value={rollup}
@@ -174,7 +188,12 @@ export default function L2ArbitrumBridge({ address, userSigner }) {
           <Radio.Button value="optimism">Optimism</Radio.Button>
         </Radio.Group>
 
-        <Table columns={columns} dataSource={data} pagination={false} style={{ marginBottom: 20 }} />
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          style={{ marginBottom: 20 }}
+        />
 
         <Form
           {...formItemLayout}
