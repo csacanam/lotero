@@ -7,6 +7,7 @@ contract Lotero {
         bool voted; //if true, that person already voted
         uint256 betId; //index of the bet
         uint256 amount; //player bet
+        uint8 selectedNumber; //selected number
     }
 
     struct Bet {
@@ -24,6 +25,7 @@ contract Lotero {
         uint256 moneyEarned; //money earned by the user
         uint256 totalDebt; //amount of money the user can claim
         bool active; //if true, user has activated the account
+        address referringUser; //the one who refers the user
     }
 
     struct Quota {
@@ -51,7 +53,7 @@ contract Lotero {
 
     uint256 public activeBet;
 
-    mapping(address => User) infoPerUser; //information per user
+    mapping(address => User) public infoPerUser; //information per user
     User[] public users; //users
 
     uint256 public totalMoneyAdded; //total money added to the contract by users
@@ -71,8 +73,13 @@ contract Lotero {
     /**
      * @dev Add money to the bet with index betId
      * @param betId index of bet in the bets array
+     * @param referringUser the one who refers the current user
      */
-    function bet(uint256 betId, uint8 betNumber)
+    function bet(
+        uint256 betId,
+        uint8 betNumber,
+        address referringUser
+    )
         public
         payable
         isValidNumber(betNumber)
@@ -89,6 +96,7 @@ contract Lotero {
         currentPlayer.voted = true;
         currentPlayer.betId = betId;
         currentPlayer.amount = msg.value;
+        currentPlayer.selectedNumber = betNumber;
 
         //Update bet
         bets[betId].amount += currentPlayer.amount;
@@ -104,6 +112,7 @@ contract Lotero {
             currentUser.moneyAdded = msg.value;
             currentUser.moneyEarned = 0;
             currentUser.totalDebt = 0;
+            currentUser.referringUser = referringUser;
 
             //Add to users array
             users.push(currentUser);
@@ -196,6 +205,21 @@ contract Lotero {
     }
 
     /**
+     *@dev Get user information in a specific bet
+     *@param betId the bet index
+     *@param user the user
+     */
+    function getUserInfoInBet(uint256 betId, address user)
+        public
+        view
+        returns (uint256 amount, uint8 betNumber)
+    {
+        Player memory currentPlayer = bets[betId].players[user];
+
+        return (currentPlayer.amount, currentPlayer.selectedNumber);
+    }
+
+    /**
      *@dev Close bet, pay to winners and increase the bet index.
      *
      */
@@ -209,15 +233,23 @@ contract Lotero {
             uint8(winningNumber)
         ];
 
-        //Get de winning multiplier (from 2 to 5)
+        //Get the winning multiplier (from 2 to 5)
         //uint8 winningMultiplier = getWinnerMultiplier(winningNumber);
 
         //Pay to winners - Fix this. The contract should not pay to winners. Winners should claim their earnings.
         for (uint8 i = 0; i < winners.length; i++) {
-            address payable winner = payable(winners[i]);
-            winner.transfer(
-                bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER
-            );
+            User memory currentWinner = infoPerUser[winners[i]];
+
+            uint256 winnerAmount = bets[activeBet].players[winners[i]].amount *
+                MAX_WIN_MULTIPLIER;
+
+            currentWinner.moneyEarned += winnerAmount;
+            currentWinner.totalDebt += winnerAmount;
+
+            totalMoneyEarned += winnerAmount;
+
+            //address payable winner = payable(winners[i]);
+            //winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
         }
 
         //Increase bet index
@@ -263,6 +295,8 @@ contract Lotero {
         return users.length;
     }
 
+    receive() external payable {}
+
     /**
      *@dev Check if number is between 0 and 9
      *@param number the number to be validated
@@ -302,6 +336,4 @@ contract Lotero {
         );
         _;
     }
-
-    receive() external payable {}
 }
