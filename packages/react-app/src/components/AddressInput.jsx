@@ -112,7 +112,11 @@ export default function AddressInput(props) {
         autoFocus={props.autoFocus}
         placeholder={props.placeholder ? props.placeholder : "address"}
         prefix={<Blockie address={currentValue} size={8} scale={3} />}
-        value={ethers.utils.isAddress(currentValue) && !isENS(currentValue) && isENS(ens) ? ens : currentValue}
+        value={
+          ethers.utils.isAddress(currentValue) && !isENS(currentValue) && isENS(ens)
+            ? ens
+            : currentValue
+        }
         addonAfter={
           <div
             style={{ marginTop: 4, cursor: "pointer" }}

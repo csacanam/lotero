@@ -128,7 +128,9 @@ function Swap({ selectedProvider, tokenListURI }) {
 
       const baseTokens = tokenList
         .filter(function (t) {
-          return ["DAI", "USDC", "USDT", "COMP", "ETH", "MKR", "LINK", tokenIn, tokenOut].includes(t.symbol);
+          return ["DAI", "USDC", "USDT", "COMP", "ETH", "MKR", "LINK", tokenIn, tokenOut].includes(
+            t.symbol,
+          );
         })
         .map(el => {
           return new Token(el.chainId, el.address, el.decimals, el.symbol, el.name);
@@ -137,7 +139,9 @@ function Swap({ selectedProvider, tokenListURI }) {
       const listOfPairwiseTokens = pairs(baseTokens);
 
       const getPairs = async list => {
-        const listOfPromises = list.map(item => Fetcher.fetchPairData(item[0], item[1], selectedProvider));
+        const listOfPromises = list.map(item =>
+          Fetcher.fetchPairData(item[0], item[1], selectedProvider),
+        );
         return Promise.all(listOfPromises.map(p => p.catch(() => undefined)));
       };
 
@@ -149,7 +153,10 @@ function Swap({ selectedProvider, tokenListURI }) {
         setAmountInMax();
         bestTrade = Trade.bestTradeExactIn(
           listOfPairs.filter(item => item),
-          new TokenAmount(tokens[tokenIn], ethers.utils.parseUnits(amountIn.toString(), tokens[tokenIn].decimals)),
+          new TokenAmount(
+            tokens[tokenIn],
+            ethers.utils.parseUnits(amountIn.toString(), tokens[tokenIn].decimals),
+          ),
           tokens[tokenOut],
           { maxNumResults: 3, maxHops: 1 },
         );
@@ -163,7 +170,10 @@ function Swap({ selectedProvider, tokenListURI }) {
         bestTrade = Trade.bestTradeExactOut(
           listOfPairs.filter(item => item),
           tokens[tokenIn],
-          new TokenAmount(tokens[tokenOut], ethers.utils.parseUnits(amountOut.toString(), tokens[tokenOut].decimals)),
+          new TokenAmount(
+            tokens[tokenOut],
+            ethers.utils.parseUnits(amountOut.toString(), tokens[tokenOut].decimals),
+          ),
           { maxNumResults: 3, maxHops: 1 },
         );
         if (bestTrade[0]) {
@@ -182,7 +192,14 @@ function Swap({ selectedProvider, tokenListURI }) {
   useEffect(() => {
     getTrades();
     // eslint-disable-next-line
-  }, [tokenIn, tokenOut, debouncedAmountIn, debouncedAmountOut, slippageTolerance, selectedProvider]);
+  }, [
+    tokenIn,
+    tokenOut,
+    debouncedAmountIn,
+    debouncedAmountOut,
+    slippageTolerance,
+    selectedProvider,
+  ]);
 
   useEffect(() => {
     if (trades && trades[0]) {
@@ -209,7 +226,11 @@ function Swap({ selectedProvider, tokenListURI }) {
       const accountList = await selectedProvider.listAccounts();
 
       if (tokenIn) {
-        const tempContractIn = new ethers.Contract(tokens[tokenIn].address, erc20Abi, selectedProvider);
+        const tempContractIn = new ethers.Contract(
+          tokens[tokenIn].address,
+          erc20Abi,
+          selectedProvider,
+        );
         const newBalanceIn = await getBalance(tokenIn, accountList[0], tempContractIn);
         setBalanceIn(newBalanceIn);
 
@@ -224,7 +245,11 @@ function Swap({ selectedProvider, tokenListURI }) {
       }
 
       if (tokenOut) {
-        const tempContractOut = new ethers.Contract(tokens[tokenOut].address, erc20Abi, selectedProvider);
+        const tempContractOut = new ethers.Contract(
+          tokens[tokenOut].address,
+          erc20Abi,
+          selectedProvider,
+        );
         const newBalanceOut = await getBalance(tokenOut, accountList[0], tempContractOut);
         setBalanceOut(newBalanceOut);
       }
@@ -260,7 +285,9 @@ function Swap({ selectedProvider, tokenListURI }) {
   const approveRouter = async () => {
     const approvalAmount =
       exact === "in"
-        ? ethers.utils.hexlify(ethers.utils.parseUnits(amountIn.toString(), tokens[tokenIn].decimals))
+        ? ethers.utils.hexlify(
+            ethers.utils.parseUnits(amountIn.toString(), tokens[tokenIn].decimals),
+          )
         : amountInMax.raw.toString();
     console.log(approvalAmount);
     const approval = updateRouterAllowance(approvalAmount);
@@ -300,8 +327,12 @@ function Swap({ selectedProvider, tokenListURI }) {
       const address = accountList[0];
 
       if (exact === "in") {
-        const _amountIn = ethers.utils.hexlify(ethers.utils.parseUnits(amountIn.toString(), tokens[tokenIn].decimals));
-        const _amountOutMin = ethers.utils.hexlify(ethers.BigNumber.from(amountOutMin.raw.toString()));
+        const _amountIn = ethers.utils.hexlify(
+          ethers.utils.parseUnits(amountIn.toString(), tokens[tokenIn].decimals),
+        );
+        const _amountOutMin = ethers.utils.hexlify(
+          ethers.BigNumber.from(amountOutMin.raw.toString()),
+        );
         if (tokenIn === "ETH") {
           call = "swapExactETHForTokens";
           args = [_amountOutMin, path, address, deadline];
@@ -314,7 +345,9 @@ function Swap({ selectedProvider, tokenListURI }) {
         const _amountOut = ethers.utils.hexlify(
           ethers.utils.parseUnits(amountOut.toString(), tokens[tokenOut].decimals),
         );
-        const _amountInMax = ethers.utils.hexlify(ethers.BigNumber.from(amountInMax.raw.toString()));
+        const _amountInMax = ethers.utils.hexlify(
+          ethers.BigNumber.from(amountInMax.raw.toString()),
+        );
         if (tokenIn === "ETH") {
           call = "swapETHForExactTokens";
           args = [_amountOut, path, address, deadline];
@@ -424,7 +457,12 @@ function Swap({ selectedProvider, tokenListURI }) {
   );
 
   const swapModal = (
-    <Modal title="Confirm swap" visible={swapModalVisible} onOk={handleSwapModalOk} onCancel={handleSwapModalCancel}>
+    <Modal
+      title="Confirm swap"
+      visible={swapModalVisible}
+      onOk={handleSwapModalOk}
+      onCancel={handleSwapModalCancel}
+    >
       <Row>
         <Space>
           <img src={logoIn} alt={tokenIn} width="30" />
@@ -462,7 +500,11 @@ function Swap({ selectedProvider, tokenListURI }) {
     <Card
       title={
         <Space>
-          <img src="https://ipfs.io/ipfs/QmXttGpZrECX5qCyXbBQiqgQNytVGeZW5Anewvh2jc4psg" width="40" alt="uniswapLogo" />
+          <img
+            src="https://ipfs.io/ipfs/QmXttGpZrECX5qCyXbBQiqgQNytVGeZW5Anewvh2jc4psg"
+            width="40"
+            alt="uniswapLogo"
+          />
           <Typography>Uniswapper</Typography>
         </Space>
       }
@@ -535,7 +577,9 @@ function Swap({ selectedProvider, tokenListURI }) {
                 setExact("out");
                 setBalanceIn();
               }}
-              filterOption={(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
               optionFilterProp="children"
             >
               {tokenList.map(token => (
@@ -596,7 +640,9 @@ function Swap({ selectedProvider, tokenListURI }) {
                 setTrades();
                 setBalanceOut();
               }}
-              filterOption={(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
               optionFilterProp="children"
             >
               {tokenList.map(token => (
@@ -613,7 +659,12 @@ function Swap({ selectedProvider, tokenListURI }) {
         <Row justify="center" align="middle">
           <Space>
             {inputIsToken ? (
-              <Button size="large" loading={approving} disabled={!insufficientAllowance} onClick={approveRouter}>
+              <Button
+                size="large"
+                loading={approving}
+                disabled={!insufficientAllowance}
+                onClick={approveRouter}
+              >
                 {!insufficientAllowance && amountIn && amountOut ? "Approved" : "Approve"}
               </Button>
             ) : null}
@@ -640,8 +691,12 @@ function Swap({ selectedProvider, tokenListURI }) {
           <Descriptions.Item label="blockNumber">{blockNumber}</Descriptions.Item>
           <Descriptions.Item label="routerAllowance">
             <Space>
-              {routerAllowance ? ethers.utils.formatUnits(routerAllowance, tokens[tokenIn].decimals) : null}
-              {routerAllowance > 0 ? <Button onClick={removeRouterAllowance}>Remove Allowance</Button> : null}
+              {routerAllowance
+                ? ethers.utils.formatUnits(routerAllowance, tokens[tokenIn].decimals)
+                : null}
+              {routerAllowance > 0 ? (
+                <Button onClick={removeRouterAllowance}>Remove Allowance</Button>
+              ) : null}
             </Space>
           </Descriptions.Item>
           <Descriptions.Item label="route">{route.join("->")}</Descriptions.Item>
@@ -671,8 +726,12 @@ function Swap({ selectedProvider, tokenListURI }) {
               }}
             />
           </Descriptions.Item>
-          <Descriptions.Item label="amountInMax">{amountInMax ? amountInMax.toExact() : null}</Descriptions.Item>
-          <Descriptions.Item label="amountOutMin">{amountOutMin ? amountOutMin.toExact() : null}</Descriptions.Item>
+          <Descriptions.Item label="amountInMax">
+            {amountInMax ? amountInMax.toExact() : null}
+          </Descriptions.Item>
+          <Descriptions.Item label="amountOutMin">
+            {amountOutMin ? amountOutMin.toExact() : null}
+          </Descriptions.Item>
           <Descriptions.Item label="timeLimitInSeconds">
             <InputNumber
               min={0}

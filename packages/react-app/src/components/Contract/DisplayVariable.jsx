@@ -3,7 +3,13 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { tryToDisplay } from "./utils";
 
-const DisplayVariable = ({ contractFunction, functionInfo, refreshRequired, triggerRefresh, blockExplorer }) => {
+const DisplayVariable = ({
+  contractFunction,
+  functionInfo,
+  refreshRequired,
+  triggerRefresh,
+  blockExplorer,
+}) => {
   const [variable, setVariable] = useState("");
 
   const refresh = useCallback(async () => {

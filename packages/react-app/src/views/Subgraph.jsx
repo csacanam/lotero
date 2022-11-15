@@ -53,7 +53,9 @@ function Subgraph(props) {
     {
       title: "Sender",
       key: "id",
-      render: record => <Address value={record.sender.id} ensProvider={props.mainnetProvider} fontSize={16} />,
+      render: record => (
+        <Address value={record.sender.id} ensProvider={props.mainnetProvider} fontSize={16} />
+      ),
     },
     {
       title: "createdAt",
@@ -80,7 +82,11 @@ function Subgraph(props) {
       </div>
       <div style={{ margin: "auto", marginTop: 32 }}>
         Instead, you can use{" "}
-        <a href="https://thegraph.com/docs/about/introduction" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://thegraph.com/docs/about/introduction"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           The Graph
         </a>{" "}
         with 🏗 scaffold-eth (
@@ -115,7 +121,11 @@ function Subgraph(props) {
         <span style={{ marginLeft: 4 }}>
           {" "}
           (requires{" "}
-          <a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://www.docker.com/products/docker-desktop"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {" "}
             Docker
           </a>

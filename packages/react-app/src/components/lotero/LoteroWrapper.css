@@ -1,0 +1,24 @@
+#lotero-wrapper {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    margin: var(--spacing-medium) auto;
+    width: 420px;
+}
+
+#lotero-wrapper > header,
+#lotero-wrapper > section {
+    padding: var(--spacing-medium);
+}
+
+#lotero-wrapper > header {
+    background: #334155;
+    border-radius: var(--rounded-medium) var(--rounded-medium) 0 0;
+}
+
+#lotero-wrapper > header h1 {
+    font-weight: bolder;
+}
+
+#lotero-wrapper > section {
+    background: #1e293b;
+    border-radius: 0 0 var(--rounded-medium) var(--rounded-medium);
+}

@@ -95,7 +95,9 @@ export default function MultiAddressInput(props) {
 
     console.log(resolution);
 
-    const [address, ens] = resolution.isResolvedAddress ? [resolution.resolvedTo, val] : [val, resolution.resolvedTo];
+    const [address, ens] = resolution.isResolvedAddress
+      ? [resolution.resolvedTo, val]
+      : [val, resolution.resolvedTo];
 
     if (resolution.resolvedTo !== val) {
       setSearchResults([{ address, isResolvedAddress: resolution.isResolvedAddress, ens }]);

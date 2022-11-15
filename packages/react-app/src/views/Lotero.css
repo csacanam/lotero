@@ -1,0 +1,13 @@
+:root {
+    --spacing-small: 6px;
+    --spacing-medium: 25px;
+    --rounded-small: 8px;
+    --rounded-medium: 16px;
+}
+
+#lotero {
+    background: #121d35;
+    padding: var(--spacing-medium) 0;
+    transition: all 0.3s ease-in;
+    width: 100%;
+}

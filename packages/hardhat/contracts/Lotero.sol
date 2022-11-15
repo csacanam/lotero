@@ -5,7 +5,7 @@ pragma solidity >=0.7.0 <0.9.0;
 contract Lotero {
     struct Player {
         bool voted; //if true, that person already voted
-        uint betId; //index of the bet
+        uint256 betId; //index of the bet
         uint256 amount; //player bet
         uint8 selectedNumber; //selected number
     }
@@ -76,7 +76,7 @@ contract Lotero {
      * @param referringUser the one who refers the current user
      */
     function bet(
-        uint betId,
+        uint256 betId,
         uint8 betNumber,
         address referringUser
     )
@@ -129,7 +129,11 @@ contract Lotero {
      *@dev Get number of players in bet with given index
      *@param betId the bet index
      */
-    function getNumberOfPlayersInBet(uint betId) public view returns (uint256) {
+    function getNumberOfPlayersInBet(uint256 betId)
+        public
+        view
+        returns (uint256)
+    {
         return bets[betId].numberOfPlayers;
     }
 
@@ -137,7 +141,7 @@ contract Lotero {
      *@dev Get amount of money in bet with index betId
      *@param betId the bet index
      */
-    function getTotalMoneyInBet(uint betId) public view returns (uint256) {
+    function getTotalMoneyInBet(uint256 betId) public view returns (uint256) {
         return bets[betId].amount;
     }
 
@@ -153,7 +157,7 @@ contract Lotero {
      *@param betId the bet index
      *@param choosenNumber the choosen number
      */
-    function getPlayersWhoChooseNumberInBet(uint betId, uint8 choosenNumber)
+    function getPlayersWhoChooseNumberInBet(uint256 betId, uint8 choosenNumber)
         public
         view
         returns (address[] memory)
@@ -165,7 +169,7 @@ contract Lotero {
      *@dev Get available quota to add in the bet
      *@param betId the bet index
      */
-    function getAvailableQuotaInBet(uint betId)
+    function getAvailableQuotaInBet(uint256 betId)
         public
         view
         returns (Quota[10] memory)
@@ -189,7 +193,7 @@ contract Lotero {
      *@param betId the bet index
      *@param choosenNumber the choosen number
      */
-    function getAvailableQuotaInBetPerNumber(uint betId, uint8 choosenNumber)
+    function getAvailableQuotaInBetPerNumber(uint256 betId, uint8 choosenNumber)
         public
         view
         returns (uint256)
@@ -205,7 +209,7 @@ contract Lotero {
      *@param betId the bet index
      *@param user the user
      */
-    function getUserInfoInBet(uint betId, address user)
+    function getUserInfoInBet(uint256 betId, address user)
         public
         view
         returns (uint256 amount, uint8 betNumber)
@@ -263,7 +267,7 @@ contract Lotero {
      *@dev Get max amount bet on any number
      *@param betId the bet index
      */
-    function getMaxBetAmountInBet(uint betId, uint8 choosenNumber)
+    function getMaxBetAmountInBet(uint256 betId, uint8 choosenNumber)
         public
         view
         returns (uint256)
@@ -276,7 +280,7 @@ contract Lotero {
      *@param betId the bet index
      *@param choosenNumber the choosen number
      */
-    function getTotalMoneyBetWithNumber(uint betId, uint8 choosenNumber)
+    function getTotalMoneyBetWithNumber(uint256 betId, uint8 choosenNumber)
         private
         view
         returns (uint256)
@@ -308,7 +312,7 @@ contract Lotero {
     *@param amount the amount to be validated
     */
     modifier checkBetCouldBePayed(
-        uint betId,
+        uint256 betId,
         uint256 amount,
         uint8 choosenNumber
     ) {

@@ -19,6 +19,7 @@
     "@apollo/client": "^3.3.21",
     "@apollo/react-hooks": "^4.0.0",
     "@arbitrum/sdk": "^2.0.0",
+    "@nilevia/count-down-timer-react": "^1.0.4",
     "@portis/web3": "^4.0.5",
     "@ramp-network/ramp-instant-sdk": "^2.2.0",
     "@testing-library/jest-dom": "^5.11.4",
@@ -49,6 +50,7 @@
     "react": "^17.0.2",
     "react-blockies": "^1.4.1",
     "react-css-theme-switcher": "^0.2.2",
+    "react-date-countdown-timer": "^1.1.0",
     "react-dom": "^17.0.2",
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.2.0",
@@ -97,6 +99,6 @@
     "ship": "yarn surge",
     "theme": "npx gulp less",
     "watch": "node ./scripts/watch.js",
-    "prettier": "npx prettier --write . '!(node_module|build)/**/*'"
+    "prettier": "prettier --write '**/*.{js,jsx}' '!(node_module|build)/**/*'"
   }
 }

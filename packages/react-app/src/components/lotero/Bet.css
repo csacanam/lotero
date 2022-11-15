@@ -1,0 +1,47 @@
+#lotero-bet fieldset {
+    display: flex;
+    justify-content: space-between;
+    margin: var(--spacing-small) 0;
+    padding: var(--spacing-small) 0;
+    width: 100%;
+}
+
+#lotero-bet--bet {
+    display: inline-block;
+    width: 75%;
+}
+
+#lotero-bet--number {
+    display: inline-block;
+    width: 20%;
+}
+
+#lotero-bet--potential-gain,
+#lotero-bet--potential-gain h3 {
+    color: #8e9db1;
+    font-size: larger;
+    font-weight: 300;
+    line-height: 1.2;
+    margin: 0;
+    text-align: left;
+}
+
+#lotero-bet--bet::after,
+#lotero-bet--number::after,
+#lotero-bet--potential-gain::after {
+    color: #8e9db1;
+    content: attr(aria-describedby);
+    float: left;
+    font-size: 12px;
+    padding: var(--spacing-small) 0;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield !important;
+}

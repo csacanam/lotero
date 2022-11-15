@@ -13,14 +13,24 @@ const noContractDisplay = (
       You need to run{" "}
       <span
         className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+        style={{
+          marginLeft: 4,
+          /* backgroundColor: "#f1f1f1", */ padding: 4,
+          borderRadius: 4,
+          fontWeight: "bolder",
+        }}
       >
         yarn run chain
       </span>{" "}
       and{" "}
       <span
         className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+        style={{
+          marginLeft: 4,
+          /* backgroundColor: "#f1f1f1", */ padding: 4,
+          borderRadius: 4,
+          fontWeight: "bolder",
+        }}
       >
         yarn run deploy
       </span>{" "}
@@ -33,7 +43,12 @@ const noContractDisplay = (
       Warning: You might need to run
       <span
         className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
+        style={{
+          marginLeft: 4,
+          /* backgroundColor: "#f1f1f1", */ padding: 4,
+          borderRadius: 4,
+          fontWeight: "bolder",
+        }}
       >
         yarn run deploy
       </span>{" "}
@@ -42,7 +57,8 @@ const noContractDisplay = (
   </div>
 );
 
-const isQueryable = fn => (fn.stateMutability === "view" || fn.stateMutability === "pure") && fn.inputs.length === 0;
+const isQueryable = fn =>
+  (fn.stateMutability === "view" || fn.stateMutability === "pure") && fn.inputs.length === 0;
 
 export default function Contract({
   customContract,
@@ -80,7 +96,8 @@ export default function Contract({
   const [refreshRequired, triggerRefresh] = useState(false);
   const contractDisplay = displayedContractFunctions.map(contractFuncInfo => {
     const contractFunc =
-      contractFuncInfo[1].stateMutability === "view" || contractFuncInfo[1].stateMutability === "pure"
+      contractFuncInfo[1].stateMutability === "view" ||
+      contractFuncInfo[1].stateMutability === "pure"
         ? contract[contractFuncInfo[0]]
         : contract.connect(signer)[contractFuncInfo[0]];
 

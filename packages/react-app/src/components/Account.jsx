@@ -66,7 +66,12 @@ export default function Account({
   const display = !minimized && (
     <span>
       {address && (
-        <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={20} />
+        <Address
+          address={address}
+          ensProvider={mainnetProvider}
+          blockExplorer={blockExplorer}
+          fontSize={20}
+        />
       )}
       <Balance address={address} provider={localProvider} price={price} size={20} />
       {!isContract && (

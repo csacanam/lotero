@@ -23,7 +23,15 @@ export default function ExampleUI({
       {/*
         ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
       */}
-      <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
+      <div
+        style={{
+          border: "1px solid #cccccc",
+          padding: 16,
+          width: 400,
+          margin: "auto",
+          marginTop: 64,
+        }}
+      >
         <h2>Example UI:</h2>
         <h4>purpose: {purpose}</h4>
         <Divider />
@@ -84,7 +92,9 @@ export default function ExampleUI({
         <Divider />
         Your Contract Address:
         <Address
-          address={readContracts && readContracts.YourContract ? readContracts.YourContract.address : null}
+          address={
+            readContracts && readContracts.YourContract ? readContracts.YourContract.address : null
+          }
           ensProvider={mainnetProvider}
           fontSize={16}
         />
@@ -138,9 +148,10 @@ export default function ExampleUI({
               tx({
                 to: writeContracts.YourContract.address,
                 value: utils.parseEther("0.001"),
-                data: writeContracts.YourContract.interface.encodeFunctionData("setPurpose(string)", [
-                  "🤓 Whoa so 1337!",
-                ]),
+                data: writeContracts.YourContract.interface.encodeFunctionData(
+                  "setPurpose(string)",
+                  ["🤓 Whoa so 1337!"],
+                ),
               });
               /* this should throw an error about "no fallback nor receive function" until you add it */
             }}
@@ -178,7 +189,11 @@ export default function ExampleUI({
         <Card style={{ marginTop: 32 }}>
           <div>
             There are tons of generic components included from{" "}
-            <a href="https://ant.design/components/overview/" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://ant.design/components/overview/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               🐜 ant.design
             </a>{" "}
             too!
