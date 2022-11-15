@@ -2,7 +2,9 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-contract Lotero {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract Lotero is Ownable {
     struct Player {
         bool voted; //if true, that person already voted
         uint256 betId; //index of the bet
@@ -33,6 +35,11 @@ contract Lotero {
         uint256 availableQuota; //available quota per number
     }
 
+    struct TeamMember {
+        address devAddress;
+        uint8 percentage;
+    }
+
     enum ValidNumber {
         ZERO,
         ONE,
@@ -59,6 +66,14 @@ contract Lotero {
     uint256 public totalMoneyAdded; //total money added to the contract by users
     uint256 public totalMoneyEarned; //total money earned by users in the contract
     uint256 public totalBets; //total bets
+    uint256 public totalMoneyEarnedDevs; //total money earned by devs
+
+    //Dev Team
+
+    TeamMember[] public teamMembers; //list of devs
+
+    uint8 public constant DEV_FEE = 5; //Dev Fee - 5%
+    uint8 public constant REFERRAL_FEE = 5; //Referrral Fee - 5%
 
     constructor() payable {
         Bet storage firstBet = bets.push();
@@ -69,6 +84,8 @@ contract Lotero {
         activeBet = 0;
         totalBets++;
     }
+
+    //1. CORE LOGIC
 
     /**
      * @dev Add money to the bet with index betId
@@ -294,6 +311,82 @@ contract Lotero {
     function getTotalUsers() public view returns (uint256) {
         return users.length;
     }
+
+    //2. DEV LOGIC
+
+    /**
+     *@dev Add a dev to the list of members
+     *@param teamMemberAddress the address
+     *@param percentage the share for the user (ex: 10 means 10% of the commission to this dev)
+     */
+    function addTeamMember(address teamMemberAddress, uint8 percentage)
+        public
+        onlyOwner
+    {
+        bool existingMember = false;
+        uint8 currentPercentage = 0;
+
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+            currentPercentage += teamMember.percentage;
+
+            if (teamMemberAddress == teamMember.devAddress) {
+                existingMember = true;
+            }
+        }
+
+        require(!existingMember, "There is a member with given address");
+
+        require(
+            currentPercentage < 100,
+            "There is not available space to add a team member"
+        );
+
+        require(
+            (currentPercentage + percentage) <= 100,
+            "The total new percentage cannot be more than 100"
+        );
+
+        //Add new member
+        TeamMember memory newTeamMember = TeamMember(
+            teamMemberAddress,
+            percentage
+        );
+        teamMembers.push(newTeamMember);
+    }
+
+    /**
+     *@dev Remove a dev from the list of members
+     *@param teamMemberAddress the address
+     */
+    function removeTeamMember(address teamMemberAddress) public onlyOwner {
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+            if (teamMember.devAddress == teamMemberAddress) {
+                //Move last member to spot i
+                teamMembers[i] = teamMembers[teamMembers.length - 1];
+                //Remove last member in the array
+                teamMembers.pop();
+                break;
+            }
+        }
+    }
+
+    /**
+     *@dev Get total team members in contract
+     */
+    function getTeamMembersLength() public view returns (uint256) {
+        return teamMembers.length;
+    }
+
+    /**
+     *@dev Get total team members list
+     */
+    function getTeamMemberList() public view returns (TeamMember[] memory) {
+        return teamMembers;
+    }
+
+    //3. MODIFIERS AND OTHERS
 
     receive() external payable {}
 

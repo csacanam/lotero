@@ -3,16 +3,18 @@ const { expect } = require("chai");
 
 const provider = ethers.getDefaultProvider();
 
-describe("DApp Testing", function () {
+describe("DApp Testing", async function () {
   let myContract;
 
   describe("Lotero Contract", function () {
+    //1. Contract deployment
     it("Should deploy Lotero contract", async function () {
       const Lotero = await ethers.getContractFactory("Lotero");
 
       myContract = await Lotero.deploy({ value: 10 });
     });
 
+    //2. First bet by first player
     describe("First Bet - First Player", function () {
       it("Should be increased the total amount in the bet and in the contract", async function () {
         //Get balance previous to bet
@@ -226,6 +228,7 @@ describe("DApp Testing", function () {
       });
     });
 
+    //First bet by second player
     describe("First Bet - Second Player", function () {
       it("Should be increased the total amount in the bet and in the contract", async function () {
         const [account1, account2] = await ethers.getSigners();
@@ -433,6 +436,65 @@ describe("DApp Testing", function () {
         expect(Number(quotas[7].availableQuota)).to.be.equal(2);
         expect(Number(quotas[8].availableQuota)).to.be.equal(2);
         expect(Number(quotas[9].availableQuota)).to.be.equal(2);
+      });
+    });
+
+    //Test Dev Logic
+    describe("Dev Logic", function () {
+      it("There should be one dev in members list", async function () {
+        const [owner, dev1, dev2] = await ethers.getSigners();
+
+        await myContract.addTeamMember(dev1.address, 10);
+
+        expect(Number(await myContract.getTeamMembersLength())).to.be.equal(1);
+      });
+
+      it("Member cannot be added twice", async function () {
+        const [owner, dev1, dev2] = await ethers.getSigners();
+
+        //Add a team member
+        await expect(
+          myContract.addTeamMember(dev1.address, 20)
+        ).to.be.revertedWith("There is a member with given address");
+      });
+
+      it("The new member cannot be added because his percentage is too high", async function () {
+        const [owner, dev1, dev2] = await ethers.getSigners();
+
+        //Add a team member
+        await expect(
+          myContract.addTeamMember(dev2.address, 100)
+        ).to.be.revertedWith(
+          "The total new percentage cannot be more than 100"
+        );
+      });
+
+      it("There should be two devs in members list", async function () {
+        const [owner, dev1, dev2] = await ethers.getSigners();
+
+        await myContract.addTeamMember(dev2.address, 90);
+
+        expect(Number(await myContract.getTeamMembersLength())).to.be.equal(2);
+      });
+
+      it("Cannot be added a new member", async function () {
+        const [owner, dev1, dev2, dev3] = await ethers.getSigners();
+
+        //Add a team member
+        await expect(
+          myContract.addTeamMember(dev3.address, 10)
+        ).to.be.revertedWith(
+          "There is not available space to add a team member"
+        );
+      });
+
+      it("Dev2 was removed", async function () {
+        const [owner, dev1, dev2, dev3] = await ethers.getSigners();
+
+        //Remove a team member
+        await myContract.removeTeamMember(dev2.address);
+
+        expect(Number(await myContract.getTeamMembersLength())).to.be.equal(1);
       });
     });
   });
