@@ -142,14 +142,7 @@ contract Lotero is Ownable {
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
 
-        uint256 devCommission = ((currentPlayer.amount * DEV_FEE) / 100);
-
-        //If calculated comission is equals to zero, the dev commission will be 1 wei
-        if (devCommission == 0) {
-            totalMoneyEarnedByDevs += 1;
-        } else {
-            totalMoneyEarnedByDevs += devCommission;
-        }
+        totalMoneyEarnedByDevs += ((currentPlayer.amount * DEV_FEE) / 100);
     }
 
     /**
@@ -444,7 +437,7 @@ contract Lotero is Ownable {
         uint256 amount,
         uint8 choosenNumber
     ) {
-        require(amount <= 10 ether, "Amount should be equal or less than 10");
+        //require(amount <= 50 ether, "Amount should be equal or less than 10");
         uint256 possibleNewAmount = amount +
             getMaxBetAmountInBet(betId, choosenNumber);
         require(
