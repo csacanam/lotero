@@ -38,6 +38,7 @@ contract Lotero is Ownable {
     struct TeamMember {
         address devAddress;
         uint8 percentage;
+        uint256 moneyClaimed;
     }
 
     enum ValidNumber {
@@ -66,10 +67,10 @@ contract Lotero is Ownable {
     uint256 public totalMoneyAdded; //total money added to the contract by users
     uint256 public totalMoneyEarned; //total money earned by users in the contract
     uint256 public totalBets; //total bets
-    uint256 public totalMoneyEarnedDevs; //total money earned by devs
+    uint256 public totalMoneyEarnedByDevs; //total money earned by devs
+    uint256 public totalMoneyClaimedByDevs; //total money claimed by devs
 
     //Dev Team
-
     TeamMember[] public teamMembers; //list of devs
 
     uint8 public constant DEV_FEE = 5; //Dev Fee - 5%
@@ -140,6 +141,8 @@ contract Lotero is Ownable {
 
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
+
+        totalMoneyEarnedByDevs += ((currentPlayer.amount / DEV_FEE) * 100);
     }
 
     /**
@@ -350,7 +353,8 @@ contract Lotero is Ownable {
         //Add new member
         TeamMember memory newTeamMember = TeamMember(
             teamMemberAddress,
-            percentage
+            percentage,
+            0
         );
         teamMembers.push(newTeamMember);
     }
@@ -369,6 +373,30 @@ contract Lotero is Ownable {
                 teamMembers.pop();
                 break;
             }
+        }
+    }
+
+    /**
+     *@dev Claim dev earnings
+     */
+    function claimDevEarnings() public onlyTeamMember {
+        uint256 totalPendingMoney = totalMoneyEarned - totalMoneyClaimedByDevs;
+
+        require(
+            totalPendingMoney > 0,
+            "There is no total pending money to pay to devs"
+        );
+
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+
+            uint256 amounToPay = (totalPendingMoney * teamMember.percentage) /
+                100;
+
+            address payable devAddressPayable = payable(teamMember.devAddress);
+            devAddressPayable.transfer(amounToPay);
+
+            totalMoneyClaimedByDevs += amounToPay;
         }
     }
 
@@ -427,6 +455,25 @@ contract Lotero is Ownable {
             bets[activeBet].winnerNumber == ValidNumber.NOT_VALID,
             "Current bet is not active"
         );
+        _;
+    }
+
+    /**
+     *@dev Check if current user is part of the member list
+     */
+    modifier onlyTeamMember() {
+        bool isMember = false;
+
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+
+            if (msg.sender == teamMember.devAddress) {
+                isMember = true;
+                break;
+            }
+        }
+
+        require(isMember, "User is not part of the team members");
         _;
     }
 }
