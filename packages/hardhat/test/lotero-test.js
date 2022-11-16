@@ -669,6 +669,77 @@ describe("DApp Testing", async function () {
           Number(ethers.utils.parseEther("2"))
         );
       });
+
+      it("Dev1 was removed", async function () {
+        const [owner, dev1, dev2, dev3] = await ethers.getSigners();
+
+        //Remove a team member
+        await myContract.removeTeamMember(dev1.address);
+
+        expect(Number(await myContract.getTeamMembersLength())).to.be.equal(0);
+      });
+
+      it("There should be two devs in members list again with 50/50", async function () {
+        const [owner, dev1, dev2] = await ethers.getSigners();
+
+        await myContract.addTeamMember(dev1.address, 50);
+        await myContract.addTeamMember(dev2.address, 50);
+
+        expect(Number(await myContract.getTeamMembersLength())).to.be.equal(2);
+      });
+
+      it("Owner cannot claim dev savings", async function () {
+        const [owner, dev1, dev2] = await ethers.getSigners();
+
+        await expect(myContract.claimDevEarnings()).to.be.revertedWith(
+          "User is not part of the team members"
+        );
+      });
+
+      it("Dev1 claim all the funds", async function () {
+        const [owner, dev1, dev2] = await ethers.getSigners();
+
+        let contractAsDev1 = myContract.connect(dev1);
+
+        const previousBalanceDev1 = Number(
+          await ethers.provider.getBalance(dev1.address)
+        );
+
+        const previousBalanceDev2 = Number(
+          await ethers.provider.getBalance(dev2.address)
+        );
+
+        const txResp = await contractAsDev1.claimDevEarnings();
+        const txReceipt = await txResp.wait();
+
+        const totalCostGas = txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice);
+
+        const currentBalanceDev1 = Number(
+          await ethers.provider.getBalance(dev1.address)
+        );
+
+        const currentBalanceDev2 = Number(
+          await ethers.provider.getBalance(dev2.address)
+        );
+
+        expect(
+          Number(await contractAsDev1.totalMoneyClaimedByDevs())
+        ).to.be.equal(Number(ethers.utils.parseEther("2")));
+
+        expect(
+          Number(await contractAsDev1.totalMoneyEarnedByDevs())
+        ).to.be.equal(Number(ethers.utils.parseEther("2")));
+
+        /*expect(Number(currentBalanceDev1)).to.be.equal(
+          previousBalanceDev1 +
+            Number(ethers.utils.parseEther("1")) -
+            Number(totalCostGas)
+        );*/
+
+        expect(Number(currentBalanceDev2)).to.be.equal(
+          previousBalanceDev2 + Number(ethers.utils.parseEther("1"))
+        );
+      });
     });
   });
 });

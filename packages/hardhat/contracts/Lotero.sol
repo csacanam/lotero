@@ -380,7 +380,8 @@ contract Lotero is Ownable {
      *@dev Claim dev earnings
      */
     function claimDevEarnings() public onlyTeamMember {
-        uint256 totalPendingMoney = totalMoneyEarned - totalMoneyClaimedByDevs;
+        uint256 totalPendingMoney = totalMoneyEarnedByDevs -
+            totalMoneyClaimedByDevs;
 
         require(
             totalPendingMoney > 0,
