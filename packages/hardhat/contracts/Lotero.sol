@@ -398,6 +398,8 @@ contract Lotero is Ownable {
             devAddressPayable.transfer(amounToPay);
 
             totalMoneyClaimedByDevs += amounToPay;
+
+            teamMember.moneyClaimed += amounToPay;
         }
     }
 
