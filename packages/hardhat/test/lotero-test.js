@@ -240,7 +240,7 @@ describe("DApp Testing", async function () {
           await ethers.provider.getBalance(myContract.address)
         );
 
-        //Add 1 wei to bet 0 with number 1
+        //Add 10 wei to bet 0 with number 2
         await contractAsAccount2.bet(0, 2, ethers.constants.AddressZero, {
           value: 10,
         });
@@ -518,6 +518,47 @@ describe("DApp Testing", async function () {
         ).to.be.revertedWith("Ownable: caller is not the owner");
 
         expect(Number(await myContract.getTeamMembersLength())).to.be.equal(1);
+      });
+
+      it("Total money earned by devs should be 2", async function () {
+        const totalMoneyEarnedByDevs =
+          await myContract.totalMoneyEarnedByDevs();
+
+        expect(Number(totalMoneyEarnedByDevs)).to.be.equal(2);
+      });
+
+      it("Bet Player 3 - Should be increased the total amount in the bet and in the contract", async function () {
+        const [account1, account2, account3] = await ethers.getSigners();
+
+        let contractAsAccount3 = myContract.connect(account3);
+
+        //Get balance previous to bet
+        const previousBalance = Number(
+          await ethers.provider.getBalance(myContract.address)
+        );
+
+        //Add 20 wei to bet 0 with number 3
+        await contractAsAccount3.bet(0, 3, ethers.constants.AddressZero, {
+          value: 20,
+        });
+
+        //Get current balance
+        const currentBalance = Number(
+          await ethers.provider.getBalance(myContract.address)
+        );
+
+        //Get first bet
+        const bet = await myContract.bets(0);
+
+        expect(Number(bet.amount)).to.be.equal(40);
+        expect(currentBalance).to.be.equal(previousBalance + 20);
+      });
+
+      it("Total money earned by devs should be 3", async function () {
+        const totalMoneyEarnedByDevs =
+          await myContract.totalMoneyEarnedByDevs();
+
+        expect(Number(totalMoneyEarnedByDevs)).to.be.equal(3);
       });
     });
   });

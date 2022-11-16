@@ -142,7 +142,14 @@ contract Lotero is Ownable {
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
 
-        totalMoneyEarnedByDevs += ((currentPlayer.amount / DEV_FEE) * 100);
+        uint256 devCommission = ((currentPlayer.amount * DEV_FEE) / 100);
+
+        //If calculated comission is equals to zero, the dev commission will be 1 wei
+        if (devCommission == 0) {
+            totalMoneyEarnedByDevs += 1;
+        } else {
+            totalMoneyEarnedByDevs += devCommission;
+        }
     }
 
     /**
