@@ -65,7 +65,8 @@ contract Lotero is Ownable {
     User[] public users; //users
 
     uint256 public totalMoneyAdded; //total money added to the contract by users
-    uint256 public totalMoneyEarned; //total money earned by users in the contract
+    uint256 public totalMoneyEarnedByPlayers; //total money earned by players in the contract
+    uint256 public totalMoneyClaimedByPlayers; //total money claimed by players in the contract
     uint256 public totalBets; //total bets
     uint256 public totalMoneyEarnedByDevs; //total money earned by devs
     uint256 public totalMoneyClaimedByDevs; //total money claimed by devs
@@ -243,12 +244,14 @@ contract Lotero is Ownable {
      *@dev Close bet, pay to winners and increase the bet index.
      *
      */
-    function closeBet(ValidNumber winningNumber)
-        public
-        payable
-        currentBetIsActive
-        isValidNumber(uint8(winningNumber))
-    {
+    function closeBet() public payable currentBetIsActive {
+        ValidNumber winningNumber = getWinningNumber();
+
+        require(
+            uint8(winningNumber) >= 0 && uint8(winningNumber) <= 9,
+            "Not a valid number"
+        );
+
         address[] memory winners = bets[activeBet].playersByChoosenNumber[
             uint8(winningNumber)
         ];
@@ -266,7 +269,7 @@ contract Lotero is Ownable {
             currentWinner.moneyEarned += winnerAmount;
             currentWinner.totalDebt += winnerAmount;
 
-            totalMoneyEarned += winnerAmount;
+            totalMoneyEarnedByPlayers += winnerAmount;
 
             //address payable winner = payable(winners[i]);
             //winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
@@ -281,6 +284,15 @@ contract Lotero is Ownable {
         nextBet.numberOfPlayers = 0;
         nextBet.winnerNumber = ValidNumber.NOT_VALID;
         totalBets++;
+    }
+
+    /**
+     *@dev Get winning number
+     */
+    function getWinningNumber() private pure returns (ValidNumber) {
+        ValidNumber winningNumber = ValidNumber.NINE;
+        //Add integration to oracle
+        return winningNumber;
     }
 
     /**
