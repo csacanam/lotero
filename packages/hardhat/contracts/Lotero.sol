@@ -27,7 +27,9 @@ contract Lotero is Ownable {
         uint256 moneyEarned; //money earned by the user
         uint256 totalDebt; //amount of money the user can claim
         bool active; //if true, user has activated the account
-        address referringUser; //the one who refers the user
+        address referringUserAddress; //the one who refers the user
+        uint256 earnedByReferrals; //total money earned by referrals in the contract
+        uint256 claimedByReferrals; //total money claimed by referrals in the contract
     }
 
     struct Quota {
@@ -77,7 +79,7 @@ contract Lotero is Ownable {
     TeamMember[] public teamMembers; //list of devs
 
     uint8 public constant DEV_FEE = 5; //Dev Fee - 5%
-    uint8 public constant REFERRAL_FEE = 5; //Referrral Fee - 5%
+    uint8 public constant REFERRAL_FEE = 1; //Referrral Fee - 1%
 
     constructor() payable {
         Bet storage firstBet = bets.push();
@@ -94,12 +96,12 @@ contract Lotero is Ownable {
     /**
      * @dev Add money to the bet with index betId
      * @param betId index of bet in the bets array
-     * @param referringUser the one who refers the current user
+     * @param referringUserAddress the one who refers the current user
      */
     function bet(
         uint256 betId,
         uint8 betNumber,
-        address referringUser
+        address referringUserAddress
     )
         public
         payable
@@ -133,25 +135,33 @@ contract Lotero is Ownable {
             currentUser.moneyAdded = msg.value;
             currentUser.moneyEarned = 0;
             currentUser.totalDebt = 0;
-            currentUser.referringUser = referringUser;
+            currentUser.referringUserAddress = referringUserAddress;
 
             //Add to users array
             users.push(currentUser);
 
             //Add to map
             infoPerUser[msg.sender] = currentUser;
+
+            //Update referral if this is the first time of currentPlayer
+            if (referringUserAddress != address(0)) {
+                updateReferralEarnings(
+                    referringUserAddress,
+                    currentPlayer.amount
+                );
+            }
+            //Update referral if currentPlayer has a referring user
+        } else if (currentUser.referringUserAddress != address(0)) {
+            updateReferralEarnings(
+                currentUser.referringUserAddress,
+                currentPlayer.amount
+            );
         }
 
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
 
         totalMoneyEarnedByDevs += ((currentPlayer.amount * DEV_FEE) / 100);
-
-        //Check if there is a referring address
-        if (referringUser != address(0)) {
-            totalMoneyEarnedByReferrals += ((currentPlayer.amount *
-                REFERRAL_FEE) / 100);
-        }
     }
 
     /**
@@ -348,6 +358,21 @@ contract Lotero is Ownable {
             totalMoneyClaimedByReferrals;
 
         return debtWithPlayers + debtWithDevs + debtWithReferrals;
+    }
+
+    /**
+     *@dev Update referral earnings
+     *@param referringUserAddress referring user addresss
+     *@param amountToAdd amount to add to the referring user
+     */
+    function updateReferralEarnings(
+        address referringUserAddress,
+        uint256 amountToAdd
+    ) private {
+        totalMoneyEarnedByReferrals += ((amountToAdd * REFERRAL_FEE) / 100);
+
+        User memory referringUser = infoPerUser[referringUserAddress];
+        referringUser.earnedByReferrals += ((amountToAdd * REFERRAL_FEE) / 100);
     }
 
     //2. DEV LOGIC
