@@ -70,6 +70,8 @@ contract Lotero is Ownable {
     uint256 public totalBets; //total bets
     uint256 public totalMoneyEarnedByDevs; //total money earned by devs
     uint256 public totalMoneyClaimedByDevs; //total money claimed by devs
+    uint256 public totalMoneyEarnedByReferrals; //total money earned by referrals in the contract
+    uint256 public totalMoneyClaimedByReferrals; //total money claimed by referrals in the contract
 
     //Dev Team
     TeamMember[] public teamMembers; //list of devs
@@ -144,6 +146,12 @@ contract Lotero is Ownable {
         totalMoneyAdded += currentPlayer.amount;
 
         totalMoneyEarnedByDevs += ((currentPlayer.amount * DEV_FEE) / 100);
+
+        //Check if there is a referring address
+        if (referringUser != address(0)) {
+            totalMoneyEarnedByReferrals += ((currentPlayer.amount *
+                REFERRAL_FEE) / 100);
+        }
     }
 
     /**
@@ -201,6 +209,7 @@ contract Lotero is Ownable {
             quota.number = i;
             quota.availableQuota =
                 (address(this).balance -
+                    getCurrentDebt() -
                     (getMaxBetAmountInBet(betId, i) * MAX_WIN_MULTIPLIER)) /
                 MAX_WIN_MULTIPLIER;
             quotas[i] = quota;
@@ -221,6 +230,7 @@ contract Lotero is Ownable {
     {
         return
             (address(this).balance -
+                getCurrentDebt() -
                 (getMaxBetAmountInBet(betId, choosenNumber) *
                     MAX_WIN_MULTIPLIER)) / MAX_WIN_MULTIPLIER;
     }
@@ -325,6 +335,19 @@ contract Lotero is Ownable {
      */
     function getTotalUsers() public view returns (uint256) {
         return users.length;
+    }
+
+    /**
+     *@dev Get total debt in contract
+     */
+    function getCurrentDebt() public view returns (uint256) {
+        uint256 debtWithPlayers = totalMoneyEarnedByPlayers -
+            totalMoneyClaimedByPlayers;
+        uint256 debtWithDevs = totalMoneyEarnedByDevs - totalMoneyClaimedByDevs;
+        uint256 debtWithReferrals = totalMoneyEarnedByReferrals -
+            totalMoneyClaimedByReferrals;
+
+        return debtWithPlayers + debtWithDevs + debtWithReferrals;
     }
 
     //2. DEV LOGIC
@@ -456,7 +479,8 @@ contract Lotero is Ownable {
         uint256 possibleNewAmount = amount +
             getMaxBetAmountInBet(betId, choosenNumber);
         require(
-            address(this).balance >= possibleNewAmount * MAX_WIN_MULTIPLIER,
+            address(this).balance - getCurrentDebt() >=
+                possibleNewAmount * MAX_WIN_MULTIPLIER,
             "Not enough money in contract to add this bet"
         );
         _;
