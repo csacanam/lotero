@@ -23,7 +23,6 @@ contract Lotero is Ownable {
 
     struct User {
         address user; //the user
-        uint256 moneyAdded; //money added to the contract by the user
         uint256 moneyEarned; //money earned by the user
         uint256 moneyClaimed; //amount of money the user can claim
         bool active; //if true, user has activated the account
@@ -118,7 +117,7 @@ contract Lotero is Ownable {
         //Update player state
         currentPlayer.voted = true;
         currentPlayer.betId = betId;
-        currentPlayer.amount = msg.value;
+        currentPlayer.amount = msg.value - getDevFee(msg.value);
         currentPlayer.selectedNumber = betNumber;
 
         //Update bet
@@ -133,7 +132,6 @@ contract Lotero is Ownable {
         if (currentUser.active == false) {
             currentUser.active = true;
             currentUser.user = msg.sender;
-            currentUser.moneyAdded = msg.value;
             currentUser.moneyEarned = 0;
             currentUser.moneyClaimed = 0;
             currentUser.referringUserAddress = referringUserAddress;
@@ -166,10 +164,10 @@ contract Lotero is Ownable {
 
         if (referralExists) {
             totalMoneyEarnedByDevs +=
-                ((currentPlayer.amount * DEV_FEE) / 100) -
-                ((currentPlayer.amount * REFERRAL_FEE) / 100);
+                getDevFee(currentPlayer.amount) -
+                (getReferralFee(currentPlayer.amount) / 100);
         } else {
-            totalMoneyEarnedByDevs += ((currentPlayer.amount * DEV_FEE) / 100);
+            totalMoneyEarnedByDevs += getDevFee(currentPlayer.amount);
         }
     }
 
@@ -359,6 +357,20 @@ contract Lotero is Ownable {
             totalMoneyClaimedByReferrals;
 
         return debtWithPlayers + debtWithDevs + debtWithReferrals;
+    }
+
+    /**
+     *@dev Get dev fee given a specific amount
+     */
+    function getDevFee(uint256 amount) private pure returns (uint256) {
+        return ((amount * DEV_FEE) / 100);
+    }
+
+    /**
+     *@dev Get referral fee given a specific amount
+     */
+    function getReferralFee(uint256 amount) private pure returns (uint256) {
+        return ((amount * REFERRAL_FEE) / 100);
     }
 
     /**
