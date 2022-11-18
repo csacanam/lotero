@@ -271,13 +271,12 @@ contract Lotero is Ownable {
             totalMoneyEarnedByPlayers += winnerAmount;
 
             //Update referral
-            /*if (referringUserAddress != address(0)) {
+            if (currentWinner.referringUserAddress != address(0)) {
                 updateReferralEarnings(
-                    referringUserAddress,
-                    currentPlayer.amount
+                    currentWinner.referringUserAddress,
+                    winnerAmount
                 );
-                referralExists = true;
-            }*/
+            }
         }
 
         //Increase bet index
