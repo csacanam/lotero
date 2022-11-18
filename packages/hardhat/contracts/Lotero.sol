@@ -128,6 +128,7 @@ contract Lotero is Ownable {
         bets[betId].amountByChoosenNumber[betNumber] += currentPlayer.amount;
 
         //Add user to contract if this is the first time adding money
+        bool referralExists = false;
         User memory currentUser = infoPerUser[msg.sender];
         if (currentUser.active == false) {
             currentUser.active = true;
@@ -149,6 +150,7 @@ contract Lotero is Ownable {
                     referringUserAddress,
                     currentPlayer.amount
                 );
+                referralExists = true;
             }
             //Update referral if currentPlayer has a referring user
         } else if (currentUser.referringUserAddress != address(0)) {
@@ -156,12 +158,19 @@ contract Lotero is Ownable {
                 currentUser.referringUserAddress,
                 currentPlayer.amount
             );
+            referralExists = true;
         }
 
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
 
-        totalMoneyEarnedByDevs += ((currentPlayer.amount * DEV_FEE) / 100);
+        if (referralExists) {
+            totalMoneyEarnedByDevs +=
+                ((currentPlayer.amount * DEV_FEE) / 100) -
+                ((currentPlayer.amount * REFERRAL_FEE) / 100);
+        } else {
+            totalMoneyEarnedByDevs += ((currentPlayer.amount * DEV_FEE) / 100);
+        }
     }
 
     /**
