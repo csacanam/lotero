@@ -25,7 +25,7 @@ contract Lotero is Ownable {
         address user; //the user
         uint256 moneyAdded; //money added to the contract by the user
         uint256 moneyEarned; //money earned by the user
-        uint256 totalDebt; //amount of money the user can claim
+        uint256 moneyClaimed; //amount of money the user can claim
         bool active; //if true, user has activated the account
         address referringUserAddress; //the one who refers the user
         uint256 earnedByReferrals; //total money earned by referrals in the contract
@@ -135,7 +135,7 @@ contract Lotero is Ownable {
             currentUser.user = msg.sender;
             currentUser.moneyAdded = msg.value;
             currentUser.moneyEarned = 0;
-            currentUser.totalDebt = 0;
+            currentUser.moneyClaimed = 0;
             currentUser.referringUserAddress = referringUserAddress;
 
             //Add to users array
@@ -285,10 +285,6 @@ contract Lotero is Ownable {
             uint8(winningNumber)
         ];
 
-        //Get the winning multiplier (from 2 to 5)
-        //uint8 winningMultiplier = getWinnerMultiplier(winningNumber);
-
-        //Pay to winners - Fix this. The contract should not pay to winners. Winners should claim their earnings.
         for (uint8 i = 0; i < winners.length; i++) {
             User memory currentWinner = infoPerUser[winners[i]];
 
@@ -296,12 +292,8 @@ contract Lotero is Ownable {
                 MAX_WIN_MULTIPLIER;
 
             currentWinner.moneyEarned += winnerAmount;
-            currentWinner.totalDebt += winnerAmount;
 
             totalMoneyEarnedByPlayers += winnerAmount;
-
-            //address payable winner = payable(winners[i]);
-            //winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
         }
 
         //Increase bet index
