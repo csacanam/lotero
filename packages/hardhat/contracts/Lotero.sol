@@ -127,7 +127,6 @@ contract Lotero is Ownable {
         bets[betId].amountByChoosenNumber[betNumber] += currentPlayer.amount;
 
         //Add user to contract if this is the first time adding money
-        bool referralExists = false;
         User memory currentUser = infoPerUser[msg.sender];
         if (currentUser.active == false) {
             currentUser.active = true;
@@ -141,34 +140,12 @@ contract Lotero is Ownable {
 
             //Add to map
             infoPerUser[msg.sender] = currentUser;
-
-            //Update referral if this is the first time of currentPlayer
-            if (referringUserAddress != address(0)) {
-                updateReferralEarnings(
-                    referringUserAddress,
-                    currentPlayer.amount
-                );
-                referralExists = true;
-            }
-            //Update referral if currentPlayer has a referring user
-        } else if (currentUser.referringUserAddress != address(0)) {
-            updateReferralEarnings(
-                currentUser.referringUserAddress,
-                currentPlayer.amount
-            );
-            referralExists = true;
         }
 
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
 
-        if (referralExists) {
-            totalMoneyEarnedByDevs +=
-                getDevFee(currentPlayer.amount) -
-                (getReferralFee(currentPlayer.amount) / 100);
-        } else {
-            totalMoneyEarnedByDevs += getDevFee(currentPlayer.amount);
-        }
+        totalMoneyEarnedByDevs += getDevFee(currentPlayer.amount);
     }
 
     /**
@@ -292,6 +269,15 @@ contract Lotero is Ownable {
             currentWinner.moneyEarned += winnerAmount;
 
             totalMoneyEarnedByPlayers += winnerAmount;
+
+            //Update referral
+            /*if (referringUserAddress != address(0)) {
+                updateReferralEarnings(
+                    referringUserAddress,
+                    currentPlayer.amount
+                );
+                referralExists = true;
+            }*/
         }
 
         //Increase bet index
