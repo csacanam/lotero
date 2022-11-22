@@ -8,9 +8,7 @@ export default function LoteroWrapper({ activeBet, children }) {
         <h1>Lotero #{activeBet + 1}</h1>
         <Countdown />
       </header>
-      <section>
-        {children}
-      </section>
+      <section>{children}</section>
     </main>
   );
 }

@@ -6,6 +6,10 @@ import Address from "./Address";
 import Balance from "./Balance";
 import Wallet from "./Wallet";
 
+import "./Account.css";
+
+const DEBUG = process.env.NODE_ENV === "development";
+
 /** 
   ~ What it does? ~
 
@@ -53,28 +57,30 @@ export default function Account({
   logoutOfWeb3Modal,
   blockExplorer,
   isContract,
+  showWallet,
 }) {
   const { currentTheme } = useThemeSwitcher();
+  const signedIn = web3Modal?.cachedProvider;
 
   let accountButtonInfo;
   if (web3Modal?.cachedProvider) {
-    accountButtonInfo = { name: "Logout", action: logoutOfWeb3Modal };
+    accountButtonInfo = { name: "Logout", action: logoutOfWeb3Modal, size: "small" };
   } else {
-    accountButtonInfo = { name: "Connect", action: loadWeb3Modal };
+    accountButtonInfo = { name: "Connect", action: loadWeb3Modal, size: "large" };
   }
 
   const display = !minimized && (
-    <span>
+    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
       {address && (
         <Address
           address={address}
           ensProvider={mainnetProvider}
           blockExplorer={blockExplorer}
-          fontSize={20}
+          fontSize={15}
         />
       )}
       <Balance address={address} provider={localProvider} price={price} size={20} />
-      {!isContract && (
+      {!isContract && showWallet && (
         <Wallet
           address={address}
           provider={localProvider}
@@ -82,18 +88,23 @@ export default function Account({
           ensProvider={mainnetProvider}
           price={price}
           color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
-          size={22}
-          padding={"0px"}
+          size={18}
+          padding={"5px"}
         />
       )}
-    </span>
+    </div>
   );
 
   return (
-    <div style={{ display: "flex" }}>
-      {display}
+    <div id="lotero-account" className={`section ${!signedIn && !DEBUG ? "not-signed-in" : ""}`}>
+      {(signedIn || DEBUG) && display}
       {web3Modal && (
-        <Button style={{ marginLeft: 8 }} shape="round" onClick={accountButtonInfo.action}>
+        <Button
+          style={{ marginLeft: 8 }}
+          shape="round"
+          size={accountButtonInfo.size}
+          onClick={accountButtonInfo.action}
+        >
           {accountButtonInfo.name}
         </Button>
       )}

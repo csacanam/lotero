@@ -1,0 +1,22 @@
+.debug-section {
+    border: 2px dotted rgba(255, 255, 255, 0.2);
+    border-radius: var(--rounded-medium);
+    margin: 0 auto;
+    padding:  var(--spacing-medium);
+    position: relative;
+    transition: border 0.2s ease-in;
+    width: 420px;
+}
+
+.debug-section:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.debug-section::after {
+    bottom: 6px;
+    content: "DEBUG";
+    color:rgba(255, 255, 255, 0.2);
+    font-size: smaller;
+    position: absolute;
+    right: 10px;
+}

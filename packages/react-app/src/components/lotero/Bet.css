@@ -1,3 +1,12 @@
+#lotero-bet {
+    border-radius: 0 0 var(--rounded-medium) var(--rounded-medium);
+    padding: var(--spacing-medium);
+}
+
+#lotero-bet.not-signed-in {
+    background: #1a212d;
+}
+
 #lotero-bet fieldset {
     display: flex;
     justify-content: space-between;

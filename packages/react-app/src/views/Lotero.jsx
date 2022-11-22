@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { LoteroWrapper, Bet } from "../components";
 import "./Lotero.css";
 
-export default function Lotero({ provider, price, gasPrice, contract }) {
+export default function Lotero({ provider, price, contract, address, children }) {
   const [activeBet, setActiveBet] = useState(undefined);
 
   useEffect(async () => {
@@ -23,9 +23,8 @@ export default function Lotero({ provider, price, gasPrice, contract }) {
   return (
     <div id="lotero">
       <LoteroWrapper activeBet={activeBet}>
-        <Space direction="vertical" size="small" style={{ display: "flex" }}>
-          <Bet contract={contract} provider={provider} price={price} />
-        </Space>
+        {children}
+        <Bet contract={contract} address={address} provider={provider} price={price} />
       </LoteroWrapper>
     </div>
   );

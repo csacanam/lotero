@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Marhey:wght@600&display=swap');
+
+#lotero-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: var(--spacing-large) auto;
+}
+
+#lotero-header--title {
+  color: #0087ff;
+  font-family: "Marhey", "Arial";
+  font-size: 4em;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+#lotero-header--subtitle {
+    font-size: 1.5em;
+    font-weight: 200;
+    margin: 0;
+    padding: 0;
+}

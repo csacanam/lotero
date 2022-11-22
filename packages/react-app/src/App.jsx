@@ -1,12 +1,9 @@
-import { Menu } from "antd";
-
 import "antd/dist/antd.css";
 import {
   useBalance,
   useContractLoader,
   useContractReader,
   useGasPrice,
-  // useOnBlock,
   useUserProviderAndSigner,
 } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
@@ -20,7 +17,9 @@ import {
   Header,
   NetworkDisplay,
   NetworkSwitch,
-  ThemeSwitch,
+  DebugSection,
+  ResponsiveContainer,
+  Footer,
 } from "./components";
 import { ALCHEMY_KEY, NETWORKS } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -28,36 +27,14 @@ import externalContracts from "./contracts/external_contracts";
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
 import { useStaticJsonRPC } from "./hooks";
-import { ExampleUI, Hints, Home, Lotero, Subgraph } from "./views";
+import { Lotero, Rules } from "./views";
 
 const { ethers } = require("ethers");
-/*
-    Welcome to 🏗 scaffold-eth !
-
-    Code:
-    https://github.com/scaffold-eth/scaffold-eth
-
-    Support:
-    https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
-    or DM @austingriffith on twitter or telegram
-
-    You should get your own Alchemy.com & Infura.io ID and put it in `constants.js`
-    (this is your connection to the main Ethereum network for ENS etc.)
-
-
-    🌏 EXTERNAL CONTRACTS:
-    You can also bring in contract artifacts in `constants.js`
-    (and then use the `useExternalContractLoader()` hook!)
-*/
-
-/// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
-
-// 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = process.env.NODE_ENV === "development";
+const initialNetwork = DEBUG ? NETWORKS.localhost : NETWORKS.mainnet;
 const NETWORKCHECK = true;
-const USE_BURNER_WALLET = true; // toggle burner wallet feature
-const USE_NETWORK_SELECTOR = false;
+const USE_BURNER_WALLET = initialNetwork === NETWORKS.localhost;
+const USE_NETWORK_SELECTOR = initialNetwork === NETWORKS.localhost;
 
 const web3Modal = Web3ModalSetup();
 
@@ -68,7 +45,7 @@ const providers = [
   "https://rpc.scaffoldeth.io:48544",
 ];
 
-function App(props) {
+function App() {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
   const networkOptions = [initialNetwork.name, "mainnet", "goerli"];
@@ -93,11 +70,6 @@ function App(props) {
   // Sensible pollTimes depending on the provider you are using
   const localProviderPollingTime = getRPCPollTime(localProvider);
   const mainnetProviderPollingTime = getRPCPollTime(mainnetProvider);
-
-  if (DEBUG) console.log(`Using ${selectedNetwork} network`);
-
-  // 🛰 providers
-  if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -187,67 +159,10 @@ function App(props) {
     mainnetProviderPollingTime,
   );
 
-  // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(
-    readContracts,
-    "YourContract",
-    "purpose",
-    [],
-    localProviderPollingTime,
-  );
-
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:", addressFromENS)
   */
-
-  //
-  // 🧫 DEBUG 👨🏻‍🔬
-  //
-  useEffect(() => {
-    if (
-      DEBUG &&
-      mainnetProvider &&
-      address &&
-      selectedChainId &&
-      yourLocalBalance &&
-      yourMainnetBalance &&
-      readContracts &&
-      writeContracts &&
-      mainnetContracts
-    ) {
-      console.log(
-        "_____________________________________ 🏗 scaffold-eth _____________________________________",
-      );
-      console.log("🌎 mainnetProvider", mainnetProvider);
-      console.log("🏠 localChainId", localChainId);
-      console.log("👩‍💼 selected address:", address);
-      console.log("🕵🏻‍♂️ selectedChainId:", selectedChainId);
-      console.log(
-        "💵 yourLocalBalance",
-        yourLocalBalance ? ethers.utils.formatEther(yourLocalBalance) : "...",
-      );
-      console.log(
-        "💵 yourMainnetBalance",
-        yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...",
-      );
-      console.log("📝 readContracts", readContracts);
-      console.log("🌍 DAI contract on mainnet:", mainnetContracts);
-      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
-      console.log("🔐 writeContracts", writeContracts);
-    }
-  }, [
-    mainnetProvider,
-    address,
-    selectedChainId,
-    yourLocalBalance,
-    yourMainnetBalance,
-    readContracts,
-    writeContracts,
-    mainnetContracts,
-    localChainId,
-    myMainnetDAIBalance,
-  ]);
 
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
@@ -277,25 +192,35 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
-  const faucetAvailable =
-    localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
-
   return (
-    <div className="App">
-      {/* ✏️ Edit the header and change the title to your project name */}
-      <Header>
-        {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-        <div style={{ position: "relative", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", flex: 1 }}>
-            {USE_NETWORK_SELECTOR && (
-              <div style={{ marginRight: 20 }}>
-                <NetworkSwitch
-                  networkOptions={networkOptions}
-                  selectedNetwork={selectedNetwork}
-                  setSelectedNetwork={setSelectedNetwork}
-                />
-              </div>
-            )}
+    <ResponsiveContainer>
+      <Header />
+      <div id="main">
+        <section id="main--route">
+          <Switch>
+            <Route exact path="/debug">
+              <Contract
+                name="Lotero"
+                price={price}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route path="/">
+              <Rules />
+            </Route>
+          </Switch>
+        </section>
+        <section id="main--bet">
+          <Lotero
+            contract={readContracts.Lotero}
+            address={address}
+            provider={localProvider}
+            price={price}
+          >
             <Account
               useBurner={USE_BURNER_WALLET}
               address={address}
@@ -308,116 +233,39 @@ function App(props) {
               logoutOfWeb3Modal={logoutOfWeb3Modal}
               blockExplorer={blockExplorer}
             />
-          </div>
-        </div>
-      </Header>
-      {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
-        <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-      )}
-      <NetworkDisplay
-        NETWORKCHECK={NETWORKCHECK}
-        localChainId={localChainId}
-        selectedChainId={selectedChainId}
-        targetNetwork={targetNetwork}
-        logoutOfWeb3Modal={logoutOfWeb3Modal}
-        USE_NETWORK_SELECTOR={USE_NETWORK_SELECTOR}
-      />
-      <Menu
-        style={{ textAlign: "center", marginTop: 20 }}
-        selectedKeys={[location.pathname]}
-        mode="horizontal"
-      >
-        <Menu.Item key="/debug">
-          <Link to="/debug">Debug Contracts</Link>
-        </Menu.Item>
-        <Menu.Item key="/">
-          <Link to="/bet">Place a bet</Link>
-        </Menu.Item>
-      </Menu>
-
-      <Switch>
-        <Route exact path="/">
-          {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
-        </Route>
-        <Route exact path="/debug">
-          {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
-          <Contract
-            name="Lotero"
-            price={price}
-            signer={userSigner}
-            provider={localProvider}
-            address={address}
-            blockExplorer={blockExplorer}
-            contractConfig={contractConfig}
-          />
-        </Route>
-        <Route path="/hints">
-          <Hints
-            address={address}
-            yourLocalBalance={yourLocalBalance}
-            mainnetProvider={mainnetProvider}
-            price={price}
-          />
-        </Route>
-        <Route path="/exampleui">
-          <ExampleUI
-            address={address}
-            userSigner={userSigner}
-            mainnetProvider={mainnetProvider}
-            localProvider={localProvider}
-            yourLocalBalance={yourLocalBalance}
-            price={price}
-            tx={tx}
-            writeContracts={writeContracts}
-            readContracts={readContracts}
-            purpose={purpose}
-          />
-        </Route>
-        <Route path="/mainnetdai">
-          <Contract
-            name="DAI"
-            customContract={
-              mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI
-            }
-            signer={userSigner}
-            provider={mainnetProvider}
-            address={address}
-            blockExplorer="https://etherscan.io/"
-            contractConfig={contractConfig}
-            chainId={1}
-          />
-          {/*
-            <Contract
-              name="UNI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.UNI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-            */}
-        </Route>
-        <Route path="/subgraph">
-          <Subgraph
-            subgraphUri={props.subgraphUri}
-            tx={tx}
-            writeContracts={writeContracts}
-            mainnetProvider={mainnetProvider}
-          />
-        </Route>
-        <Route path="/bet">
-          <Lotero contract={readContracts.Lotero} provider={localProvider} price={price} gasPrice={gasPrice} />
-        </Route>
-      </Switch>
-
-      <ThemeSwitch />
-    </div>
+          </Lotero>
+          <DebugSection display={DEBUG}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
+                <FaucetHint
+                  localProvider={localProvider}
+                  targetNetwork={targetNetwork}
+                  address={address}
+                />
+              )}
+              {USE_NETWORK_SELECTOR && (
+                <NetworkSwitch
+                  networkOptions={networkOptions}
+                  selectedNetwork={selectedNetwork}
+                  setSelectedNetwork={setSelectedNetwork}
+                />
+              )}
+              <NetworkDisplay
+                NETWORKCHECK={NETWORKCHECK}
+                localChainId={localChainId}
+                selectedChainId={selectedChainId}
+                targetNetwork={targetNetwork}
+                logoutOfWeb3Modal={logoutOfWeb3Modal}
+                USE_NETWORK_SELECTOR={USE_NETWORK_SELECTOR}
+              />
+            </div>
+            <br />
+            <Link to="/debug">Debug Contract</Link>
+          </DebugSection>
+        </section>
+      </div>
+      <Footer />
+    </ResponsiveContainer>
   );
 }
 

@@ -1,0 +1,17 @@
+#lotero-rules {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--rounded-medium);
+    padding: var(--spacing-medium);
+    font-size: medium;
+}
+
+#lotero-rules ul,
+#lotero-rules ol {
+    margin: 0;
+    padding: var(--spacing-medium);
+    padding-left: var(--spacing-large);
+}
+
+#lotero-rules li {
+    padding: var(--spacing-small) 0;
+}

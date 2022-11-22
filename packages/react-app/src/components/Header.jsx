@@ -1,30 +1,25 @@
-import { Typography } from "antd";
 import React from "react";
-
-const { Title, Text } = Typography;
+import { Link } from "react-router-dom";
+import "./Header.css"
 
 // displays a page header
 
-export default function Header({ link, title, subTitle, ...props }) {
+export default function Header({ title, subtitle }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", padding: "1.2rem" }}>
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, alignItems: "start" }}>
-        <a href={link} target="_blank" rel="noopener noreferrer">
-          <Title level={4} style={{ margin: "0 0.5rem 0 0" }}>
-            {title}
-          </Title>
-        </a>
-        <Text type="secondary" style={{ textAlign: "left" }}>
-          {subTitle}
-        </Text>
-      </div>
-      {props.children}
+    <div id="lotero-header">
+      <Link to="/">
+        <h1 id="lotero-header--title">
+          {title}
+        </h1>
+      </Link>
+      <h3 id="lotero-header--subtitle">
+        {subtitle}
+      </h3>
     </div>
   );
 }
 
 Header.defaultProps = {
-  link: "https://lotero.com/",
   title: "Lotero",
-  subTitle: "Safe and fair lottery game with high chances of winning!",
+  subtitle: "Safe and fair lottery game with high chances of winning!",
 };

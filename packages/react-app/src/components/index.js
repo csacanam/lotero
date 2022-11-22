@@ -28,3 +28,6 @@ export { default as LoteroWrapper } from "./lotero/LoteroWrapper";
 export { default as Bet } from "./lotero/Bet";
 export { default as Countdown } from "./lotero/Countdown";
 export { default as InfoPanel } from "./lotero/InfoPanel";
+export { default as DebugSection } from "./lotero/DebugSection";
+export { default as ResponsiveContainer } from "./ResponsiveContainer";
+export { default as Footer } from "./Footer";

@@ -1,0 +1,11 @@
+#lotero-account {
+    background: #1a212d;
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-medium);
+}
+
+#lotero-account.not-signed-in {
+    justify-content: center;
+    padding: var(--spacing-large) 0 0 0;
+}
