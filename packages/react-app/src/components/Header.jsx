@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Header.css"
+import "./Header.css";
 
 // displays a page header
 
@@ -8,13 +8,9 @@ export default function Header({ title, subtitle }) {
   return (
     <div id="lotero-header">
       <Link to="/">
-        <h1 id="lotero-header--title">
-          {title}
-        </h1>
+        <h1 id="lotero-header--title">{title}</h1>
       </Link>
-      <h3 id="lotero-header--subtitle">
-        {subtitle}
-      </h3>
+      <h2 id="lotero-header--subtitle">{subtitle}</h2>
     </div>
   );
 }

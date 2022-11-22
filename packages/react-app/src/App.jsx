@@ -1,3 +1,4 @@
+import { Menu } from "antd";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -197,7 +198,27 @@ function App() {
       <Header />
       <div id="main">
         <section id="main--route">
+          <Menu style={{ marginBottom: 20 }} selectedKeys={[location.pathname]} mode="horizontal">
+            <Menu.Item key="/">
+              <Link to="/">Home</Link>
+            </Menu.Item>
+            <Menu.Item key="/rules">
+              <Link to="/rules">Rules</Link>
+            </Menu.Item>
+            <Menu.Item key="/rewards">
+              <Link to="/rewards">Claim rewards</Link>
+            </Menu.Item>
+            <Menu.Item key="/invite">
+              <Link to="/invite">Invite friends</Link>
+            </Menu.Item>
+            <Menu.Item key="/debug">
+              <Link to="/debug">Debug Contracts</Link>
+            </Menu.Item>
+          </Menu>
           <Switch>
+            <Route exact path="/rules">
+              <Rules />
+            </Route>
             <Route exact path="/debug">
               <Contract
                 name="Lotero"
@@ -210,7 +231,12 @@ function App() {
               />
             </Route>
             <Route path="/">
-              <Rules />
+              <div>
+                <p>
+                  Lotero.co es una aplicación descentralizada (DApp) que le permite a las personas
+                  apostar sus criptomonedas y multiplicarlas por 5 con una probabilidad del 10%.
+                </p>
+              </div>
             </Route>
           </Switch>
         </section>

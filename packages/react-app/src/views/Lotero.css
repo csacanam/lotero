@@ -2,13 +2,14 @@
     --spacing-small: 6px;
     --spacing-medium: 25px;
     --spacing-large: 50px;
+    --spacing-extra-large: 70px;
     --rounded-small: 8px;
     --rounded-medium: 16px;
 }
 
 #lotero {
     position: sticky;
-    top: var(--spacing-large);
+    top: var(--spacing-extra-large);
     transition: all 0.3s ease-in;
     width: 100%;
     z-index: 1;
