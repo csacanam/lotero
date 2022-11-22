@@ -27,8 +27,8 @@ const defaultNetwork = "localhost";
 
 function mnemonic() {
   try {
-    //return fs.readFileSync("./mnemonic.txt").toString().trim();
-    return process.env.PRIVATE_KEY.toString().trim();
+    return fs.readFileSync("./mnemonic.txt").toString().trim();
+    //return process.env.PRIVATE_KEY.toString().trim();
   } catch (e) {
     if (defaultNetwork !== "localhost") {
       console.log(

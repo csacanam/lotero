@@ -2,7 +2,9 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-contract Lotero {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract Lotero is Ownable {
     struct Player {
         bool voted; //if true, that person already voted
         uint256 betId; //index of the bet
@@ -21,16 +23,23 @@ contract Lotero {
 
     struct User {
         address user; //the user
-        uint256 moneyAdded; //money added to the contract by the user
         uint256 moneyEarned; //money earned by the user
-        uint256 totalDebt; //amount of money the user can claim
+        uint256 moneyClaimed; //amount of money the user can claim
         bool active; //if true, user has activated the account
-        address referringUser; //the one who refers the user
+        address referringUserAddress; //the one who refers the user
+        uint256 earnedByReferrals; //total money earned by referrals in the contract
+        uint256 claimedByReferrals; //total money claimed by referrals in the contract
     }
 
     struct Quota {
         uint8 number; //the number
         uint256 availableQuota; //available quota per number
+    }
+
+    struct TeamMember {
+        address devAddress;
+        uint8 percentage;
+        uint256 moneyClaimed;
     }
 
     enum ValidNumber {
@@ -57,8 +66,19 @@ contract Lotero {
     User[] public users; //users
 
     uint256 public totalMoneyAdded; //total money added to the contract by users
-    uint256 public totalMoneyEarned; //total money earned by users in the contract
+    uint256 public totalMoneyEarnedByPlayers; //total money earned by players in the contract
+    uint256 public totalMoneyClaimedByPlayers; //total money claimed by players in the contract
     uint256 public totalBets; //total bets
+    uint256 public totalMoneyEarnedByDevs; //total money earned by devs
+    uint256 public totalMoneyClaimedByDevs; //total money claimed by devs
+    uint256 public totalMoneyEarnedByReferrals; //total money earned by referrals in the contract
+    uint256 public totalMoneyClaimedByReferrals; //total money claimed by referrals in the contract
+
+    //Dev Team
+    TeamMember[] public teamMembers; //list of devs
+
+    uint8 public constant DEV_FEE = 5; //Dev Fee - 5%
+    uint8 public constant REFERRAL_FEE = 1; //Referrral Fee - 1%
 
     constructor() payable {
         Bet storage firstBet = bets.push();
@@ -70,15 +90,17 @@ contract Lotero {
         totalBets++;
     }
 
+    //1. CORE LOGIC
+
     /**
      * @dev Add money to the bet with index betId
      * @param betId index of bet in the bets array
-     * @param referringUser the one who refers the current user
+     * @param referringUserAddress the one who refers the current user
      */
     function bet(
         uint256 betId,
         uint8 betNumber,
-        address referringUser
+        address referringUserAddress
     )
         public
         payable
@@ -95,7 +117,7 @@ contract Lotero {
         //Update player state
         currentPlayer.voted = true;
         currentPlayer.betId = betId;
-        currentPlayer.amount = msg.value;
+        currentPlayer.amount = msg.value - getDevFee(msg.value);
         currentPlayer.selectedNumber = betNumber;
 
         //Update bet
@@ -109,10 +131,9 @@ contract Lotero {
         if (currentUser.active == false) {
             currentUser.active = true;
             currentUser.user = msg.sender;
-            currentUser.moneyAdded = msg.value;
             currentUser.moneyEarned = 0;
-            currentUser.totalDebt = 0;
-            currentUser.referringUser = referringUser;
+            currentUser.moneyClaimed = 0;
+            currentUser.referringUserAddress = referringUserAddress;
 
             //Add to users array
             users.push(currentUser);
@@ -123,6 +144,8 @@ contract Lotero {
 
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
+
+        totalMoneyEarnedByDevs += getDevFee(currentPlayer.amount);
     }
 
     /**
@@ -180,6 +203,7 @@ contract Lotero {
             quota.number = i;
             quota.availableQuota =
                 (address(this).balance -
+                    getCurrentDebt() -
                     (getMaxBetAmountInBet(betId, i) * MAX_WIN_MULTIPLIER)) /
                 MAX_WIN_MULTIPLIER;
             quotas[i] = quota;
@@ -200,6 +224,7 @@ contract Lotero {
     {
         return
             (address(this).balance -
+                getCurrentDebt() -
                 (getMaxBetAmountInBet(betId, choosenNumber) *
                     MAX_WIN_MULTIPLIER)) / MAX_WIN_MULTIPLIER;
     }
@@ -223,20 +248,18 @@ contract Lotero {
      *@dev Close bet, pay to winners and increase the bet index.
      *
      */
-    function closeBet(ValidNumber winningNumber)
-        public
-        payable
-        currentBetIsActive
-        isValidNumber(uint8(winningNumber))
-    {
+    function closeBet() public payable currentBetIsActive {
+        ValidNumber winningNumber = getWinningNumber();
+
+        require(
+            uint8(winningNumber) >= 0 && uint8(winningNumber) <= 9,
+            "Not a valid number"
+        );
+
         address[] memory winners = bets[activeBet].playersByChoosenNumber[
             uint8(winningNumber)
         ];
 
-        //Get the winning multiplier (from 2 to 5)
-        //uint8 winningMultiplier = getWinnerMultiplier(winningNumber);
-
-        //Pay to winners - Fix this. The contract should not pay to winners. Winners should claim their earnings.
         for (uint8 i = 0; i < winners.length; i++) {
             User memory currentWinner = infoPerUser[winners[i]];
 
@@ -244,12 +267,16 @@ contract Lotero {
                 MAX_WIN_MULTIPLIER;
 
             currentWinner.moneyEarned += winnerAmount;
-            currentWinner.totalDebt += winnerAmount;
 
-            totalMoneyEarned += winnerAmount;
+            totalMoneyEarnedByPlayers += winnerAmount;
 
-            //address payable winner = payable(winners[i]);
-            //winner.transfer(bets[activeBet].players[winner].amount * MAX_WIN_MULTIPLIER);
+            //Update referral
+            if (currentWinner.referringUserAddress != address(0)) {
+                updateReferralEarnings(
+                    currentWinner.referringUserAddress,
+                    winnerAmount
+                );
+            }
         }
 
         //Increase bet index
@@ -261,6 +288,15 @@ contract Lotero {
         nextBet.numberOfPlayers = 0;
         nextBet.winnerNumber = ValidNumber.NOT_VALID;
         totalBets++;
+    }
+
+    /**
+     *@dev Get winning number
+     */
+    function getWinningNumber() private pure returns (ValidNumber) {
+        ValidNumber winningNumber = ValidNumber.NINE;
+        //Add integration to oracle
+        return winningNumber;
     }
 
     /**
@@ -295,6 +331,152 @@ contract Lotero {
         return users.length;
     }
 
+    /**
+     *@dev Get total debt in contract
+     */
+    function getCurrentDebt() public view returns (uint256) {
+        uint256 debtWithPlayers = totalMoneyEarnedByPlayers -
+            totalMoneyClaimedByPlayers;
+        uint256 debtWithDevs = totalMoneyEarnedByDevs - totalMoneyClaimedByDevs;
+        uint256 debtWithReferrals = totalMoneyEarnedByReferrals -
+            totalMoneyClaimedByReferrals;
+
+        return debtWithPlayers + debtWithDevs + debtWithReferrals;
+    }
+
+    /**
+     *@dev Get dev fee given a specific amount
+     */
+    function getDevFee(uint256 amount) private pure returns (uint256) {
+        return ((amount * DEV_FEE) / 100);
+    }
+
+    /**
+     *@dev Get referral fee given a specific amount
+     */
+    function getReferralFee(uint256 amount) private pure returns (uint256) {
+        return ((amount * REFERRAL_FEE) / 100);
+    }
+
+    /**
+     *@dev Update referral earnings
+     *@param referringUserAddress referring user addresss
+     *@param amountToAdd amount to add to the referring user
+     */
+    function updateReferralEarnings(
+        address referringUserAddress,
+        uint256 amountToAdd
+    ) private {
+        totalMoneyEarnedByReferrals += ((amountToAdd * REFERRAL_FEE) / 100);
+
+        User memory referringUser = infoPerUser[referringUserAddress];
+        referringUser.earnedByReferrals += ((amountToAdd * REFERRAL_FEE) / 100);
+    }
+
+    //2. DEV LOGIC
+
+    /**
+     *@dev Add a dev to the list of members
+     *@param teamMemberAddress the address
+     *@param percentage the share for the user (ex: 10 means 10% of the commission to this dev)
+     */
+    function addTeamMember(address teamMemberAddress, uint8 percentage)
+        public
+        onlyOwner
+    {
+        bool existingMember = false;
+        uint8 currentPercentage = 0;
+
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+            currentPercentage += teamMember.percentage;
+
+            if (teamMemberAddress == teamMember.devAddress) {
+                existingMember = true;
+            }
+        }
+
+        require(!existingMember, "There is a member with given address");
+
+        require(
+            currentPercentage < 100,
+            "There is not available space to add a team member"
+        );
+
+        require(
+            (currentPercentage + percentage) <= 100,
+            "The total new percentage cannot be more than 100"
+        );
+
+        //Add new member
+        TeamMember memory newTeamMember = TeamMember(
+            teamMemberAddress,
+            percentage,
+            0
+        );
+        teamMembers.push(newTeamMember);
+    }
+
+    /**
+     *@dev Remove a dev from the list of members
+     *@param teamMemberAddress the address
+     */
+    function removeTeamMember(address teamMemberAddress) public onlyOwner {
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+            if (teamMember.devAddress == teamMemberAddress) {
+                //Move last member to spot i
+                teamMembers[i] = teamMembers[teamMembers.length - 1];
+                //Remove last member in the array
+                teamMembers.pop();
+                break;
+            }
+        }
+    }
+
+    /**
+     *@dev Claim dev earnings
+     */
+    function claimDevEarnings() public onlyTeamMember {
+        uint256 totalPendingMoney = totalMoneyEarnedByDevs -
+            totalMoneyClaimedByDevs;
+
+        require(
+            totalPendingMoney > 0,
+            "There is no total pending money to pay to devs"
+        );
+
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+
+            uint256 amounToPay = (totalPendingMoney * teamMember.percentage) /
+                100;
+
+            address payable devAddressPayable = payable(teamMember.devAddress);
+            devAddressPayable.transfer(amounToPay);
+
+            totalMoneyClaimedByDevs += amounToPay;
+
+            teamMember.moneyClaimed += amounToPay;
+        }
+    }
+
+    /**
+     *@dev Get total team members in contract
+     */
+    function getTeamMembersLength() public view returns (uint256) {
+        return teamMembers.length;
+    }
+
+    /**
+     *@dev Get total team members list
+     */
+    function getTeamMemberList() public view returns (TeamMember[] memory) {
+        return teamMembers;
+    }
+
+    //3. MODIFIERS AND OTHERS
+
     receive() external payable {}
 
     /**
@@ -316,11 +498,12 @@ contract Lotero {
         uint256 amount,
         uint8 choosenNumber
     ) {
-        require(amount <= 10 ether, "Amount should be equal or less than 10");
+        //require(amount <= 50 ether, "Amount should be equal or less than 10");
         uint256 possibleNewAmount = amount +
             getMaxBetAmountInBet(betId, choosenNumber);
         require(
-            address(this).balance >= possibleNewAmount * MAX_WIN_MULTIPLIER,
+            address(this).balance - getCurrentDebt() >=
+                possibleNewAmount * MAX_WIN_MULTIPLIER,
             "Not enough money in contract to add this bet"
         );
         _;
@@ -334,6 +517,25 @@ contract Lotero {
             bets[activeBet].winnerNumber == ValidNumber.NOT_VALID,
             "Current bet is not active"
         );
+        _;
+    }
+
+    /**
+     *@dev Check if current user is part of the member list
+     */
+    modifier onlyTeamMember() {
+        bool isMember = false;
+
+        for (uint8 i = 0; i < teamMembers.length; i++) {
+            TeamMember memory teamMember = teamMembers[i];
+
+            if (msg.sender == teamMember.devAddress) {
+                isMember = true;
+                break;
+            }
+        }
+
+        require(isMember, "User is not part of the team members");
         _;
     }
 }
