@@ -35,6 +35,16 @@
     text-align: left;
 }
 
+#lotero-bet--bet::before,
+#lotero-bet--number::before,
+#lotero-bet--potential-gain::before {
+    color: #566a83;
+    content: attr(aria-label);
+    float: left;
+    font-size: 12px;
+    padding: var(--spacing-small) 0;
+}
+
 #lotero-bet--bet::after,
 #lotero-bet--number::after,
 #lotero-bet--potential-gain::after {

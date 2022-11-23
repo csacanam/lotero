@@ -1,13 +1,26 @@
-import { Button, Input, Select } from "antd";
+import { Button, Input, notification, Select } from "antd";
 import { useBalance } from "eth-hooks";
 import { utils } from "ethers";
 import { useEffect, useState } from "react";
+import Confetti from "react-dom-confetti";
 import { getRPCPollTime } from "../../helpers";
 import Balance from "../Balance";
-import "./Bet.css";
 import InfoPanel from "./InfoPanel";
+import "./Bet.css";
 
 const { Option } = Select;
+const confettiConfig = {
+  angle: 90,
+  spread: 360,
+  startVelocity: 40,
+  elementCount: 80,
+  dragFriction: 0.12,
+  duration: 3000,
+  stagger: 3,
+  width: "8px",
+  height: "8px",
+  perspective: "500px",
+};
 
 /**
  * Renders the bet component.
@@ -15,13 +28,14 @@ const { Option } = Select;
  * @param address The user's wallet address
  * @returns A valid react child
  */
-export default function Bet({ contract, address, provider, price }) {
+export default function Bet({ contract, address, provider, price, tx, activeBet }) {
   const [number, setNumber] = useState(0);
   const [betVal, setBetVal] = useState("0");
   const [bet, setBet] = useState(0);
   const [dollars, setDollars] = useState(0);
   const [factor, setFactor] = useState(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   let localProviderPollingTime = getRPCPollTime(provider);
   const balance = useBalance(provider, address, localProviderPollingTime);
@@ -71,13 +85,26 @@ export default function Bet({ contract, address, provider, price }) {
   const onSubmit = async () => {
     if (bet <= floatBalance) {
       setIsSubmitting(true);
-      // await contract.bet(address, number, bet);
-      alert("Congratulations! your bet has been received!");
-      setBet(0);
-      setBetVal("0");
-      setIsSubmitting(false);
+      await tx(contract.bet(activeBet, number, address, { value: utils.parseEther(betVal) }), result => {
+        setIsSubmitting(false);
+        if (!result.error) {
+          setIsSubmitted(true);
+          notification.success({
+            message: "New bet",
+            description: "Congratulations! your bet has been received!",
+            placement: "bottomRight",
+          });
+          setBet(0);
+          setBetVal("0");
+          setTimeout(() => setIsSubmitted(false), 1000);
+        }
+      });
     } else {
-      alert(`Insufficient funds to place the bet. Your current balance is ${floatBalance}`);
+      notification.error({
+        message: "New bet",
+        description: `Insufficient funds to place the bet. Your current balance is ${floatBalance}`,
+        placement: "bottomRight",
+      });
     }
   };
 
@@ -96,7 +123,8 @@ export default function Bet({ contract, address, provider, price }) {
         <fieldset>
           <span
             id="lotero-bet--bet"
-            aria-describedby={bet > 0 ? `You are betting \$${dollars} USD on number ${number}` : ""}
+            aria-label="Bet amount"
+            // aria-describedby={bet > 0 ? `You are betting \$${dollars} USD on number ${number}` : ""}
           >
             <Input
               name="bet"
@@ -114,7 +142,7 @@ export default function Bet({ contract, address, provider, price }) {
               max={Math.min(50, floatBalance)}
             />
           </span>
-          <span id="lotero-bet--number">
+          <span aria-label="Number" id="lotero-bet--number">
             <Select
               name="number"
               defaultValue={number}
@@ -162,6 +190,7 @@ export default function Bet({ contract, address, provider, price }) {
             onClick={onSubmit}
           >
             {buttonLabel}
+            <Confetti active={isSubmitted} config={confettiConfig} />
           </Button>
         </fieldset>
       </form>

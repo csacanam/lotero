@@ -242,10 +242,11 @@ function App() {
         </section>
         <section id="main--bet">
           <Lotero
-            contract={readContracts.Lotero}
+            contract={writeContracts.Lotero}
             address={address}
             provider={localProvider}
             price={price}
+            tx={tx}
           >
             <Account
               useBurner={USE_BURNER_WALLET}

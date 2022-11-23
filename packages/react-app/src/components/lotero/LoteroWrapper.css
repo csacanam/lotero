@@ -9,6 +9,7 @@
     background: #334155;
     border-radius: var(--rounded-medium) var(--rounded-medium) 0 0;
     padding: var(--spacing-medium);
+    text-align: center;
 }
 
 #lotero-wrapper > header h1 {

@@ -4,7 +4,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: var(--spacing-extra-large) auto var(--spacing-large) auto;
+    margin: var(--spacing-large) auto var(--spacing-medium) auto;
 }
 
 #lotero-header--title {
