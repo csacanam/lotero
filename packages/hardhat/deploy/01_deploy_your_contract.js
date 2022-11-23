@@ -23,6 +23,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     // args: [ "Hello", ethers.utils.parseEther("1.5") ],
     log: true,
     waitConfirmations: 5,
+    value: ethers.utils.parseEther("100"),
   });
 
   // Getting a previously deployed contract
