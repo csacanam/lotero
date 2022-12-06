@@ -736,11 +736,11 @@ describe("DApp Testing", async function () {
           Number(await contractAsDev1.totalMoneyEarnedByDevs())
         ).to.be.equal(Number(ethers.utils.parseEther("2")));
 
-        /*expect(Number(currentBalanceDev1)).to.be.equal(
+        expect(Number(currentBalanceDev1)).to.be.equal(
           previousBalanceDev1 +
             Number(ethers.utils.parseEther("1")) -
             Number(totalCostGas)
-        );*/
+        );
 
         expect(Number(currentBalanceDev2)).to.be.equal(
           previousBalanceDev2 + Number(ethers.utils.parseEther("1"))
