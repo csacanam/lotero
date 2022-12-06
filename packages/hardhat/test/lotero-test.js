@@ -37,10 +37,12 @@ describe("DApp Testing", async function () {
         //Get first bet
         const bet = await myContract.bets(0);
 
+        //The bet amount should be 9.5 ether because the dev fee is 0.5
         expect(Number(bet.amount)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
 
+        //The balance in contract should be 10 ether
         expect(currentBalance).to.be.equal(
           previousBalance + Number(ethers.utils.parseEther("10"))
         );
@@ -58,24 +60,24 @@ describe("DApp Testing", async function () {
         expect(player1.active).to.be.equal(true);
       });
 
-      it("First user should have added 10 ether", async function () {
+      it("First user should have added 9.5 ether", async function () {
         const player1 = await myContract.users(0);
 
         expect(Number(player1.moneyAdded)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
       });
 
-      it("Total money added in contract should be equal to 10 ether", async function () {
+      it("Total money added in contract should be equal to 9.5 ether", async function () {
         const totalMoneyAdded = await myContract.totalMoneyAdded();
 
         expect(Number(totalMoneyAdded)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
       });
 
       it("Total money earned in contract should be equal to 0 wei", async function () {
-        const totalMoneyEarned = await myContract.totalMoneyEarned();
+        const totalMoneyEarned = await myContract.totalMoneyEarnedByPlayers();
 
         expect(totalMoneyEarned).to.be.equal(0);
       });
@@ -98,11 +100,11 @@ describe("DApp Testing", async function () {
         expect(bet.winnerNumber).to.be.equal(Number(10));
       });
 
-      it("The current bet should have 10 ether in deposited amount", async function () {
+      it("The current bet should have 9.5 ether in deposited amount", async function () {
         const bet = await myContract.bets(0);
 
         expect(Number(bet.amount)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
       });
 
@@ -127,7 +129,7 @@ describe("DApp Testing", async function () {
         );
       });
 
-      it("The current available quota for any number different than 1 should be 22 ether", async function () {
+      it("The current available quota for any number different than 1 should be 21.9 ether", async function () {
         const quotaFor0 = await myContract.getAvailableQuotaInBetPerNumber(
           0,
           0
@@ -165,51 +167,55 @@ describe("DApp Testing", async function () {
           9
         );
 
+        const currentBalance = Number(
+          await ethers.provider.getBalance(myContract.address)
+        );
+
         expect(Number(quotaFor0)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor2)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor3)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor4)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor5)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor6)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor7)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor8)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotaFor9)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
       });
 
-      it("The current available quota for number 1 should be 12 ether", async function () {
+      it("The current available quota for number 1 should be 12.4 ether", async function () {
         const quotaFor1 = await myContract.getAvailableQuotaInBetPerNumber(
           0,
           1
         );
 
         expect(Number(quotaFor1)).to.be.equal(
-          Number(ethers.utils.parseEther("12"))
+          Number(ethers.utils.parseEther("12.4"))
         );
       });
 
-      it("Get max amount in bet for number 1 should be equal to 10", async function () {
+      it("Get max amount in bet for number 1 should be equal to 9.5", async function () {
         const maxAmountFor1 = await myContract.getMaxBetAmountInBet(0, 1);
 
         expect(Number(maxAmountFor1)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
       });
 
@@ -235,38 +241,38 @@ describe("DApp Testing", async function () {
         expect(Number(maxAmountFor9)).to.be.equal(0);
       });
 
-      it("Quota for 1 should be 12 ether. The rest should be 22 ether", async function () {
+      it("Quota for 1 should be 12.4 ether. The rest should be 21.9 ether", async function () {
         const quotas = await myContract.getAvailableQuotaInBet(0);
 
         expect(Number(quotas[0].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[1].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("12"))
+          Number(ethers.utils.parseEther("12.4"))
         );
         expect(Number(quotas[2].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[3].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[4].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[5].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[6].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[7].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[8].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
         expect(Number(quotas[9].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("22"))
+          Number(ethers.utils.parseEther("21.9"))
         );
       });
     });
@@ -297,7 +303,7 @@ describe("DApp Testing", async function () {
         const bet = await myContract.bets(0);
 
         expect(Number(bet.amount)).to.be.equal(
-          Number(ethers.utils.parseEther("20"))
+          Number(ethers.utils.parseEther("19"))
         );
         expect(Number(currentBalance)).to.be.equal(
           previousBalance + Number(ethers.utils.parseEther("10"))
@@ -318,28 +324,28 @@ describe("DApp Testing", async function () {
         expect(player2.active).to.be.equal(true);
       });
 
-      it("First and second users should have added 10 ether", async function () {
+      it("First and second users should have added 9.5 ether", async function () {
         const player1 = await myContract.users(0);
         const player2 = await myContract.users(1);
 
         expect(Number(player1.moneyAdded)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
         expect(Number(player2.moneyAdded)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
       });
 
-      it("Total money added in contract should be equal to 20 ethers", async function () {
+      it("Total money added in contract should be equal to 19 ethers", async function () {
         const totalMoneyAdded = await myContract.totalMoneyAdded();
 
         expect(Number(totalMoneyAdded)).to.be.equal(
-          Number(ethers.utils.parseEther("20"))
+          Number(ethers.utils.parseEther("19"))
         );
       });
 
       it("Total money earned in contract should be equal to 0 wei", async function () {
-        const totalMoneyEarned = await myContract.totalMoneyEarned();
+        const totalMoneyEarned = await myContract.totalMoneyEarnedByPlayers();
 
         expect(totalMoneyEarned).to.be.equal(0);
       });
@@ -362,11 +368,11 @@ describe("DApp Testing", async function () {
         expect(bet.winnerNumber).to.be.equal(Number(10));
       });
 
-      it("The current bet should have 20 ethers in deposited amount", async function () {
+      it("The current bet should have 19 ethers in deposited amount", async function () {
         const bet = await myContract.bets(0);
 
         expect(Number(bet.amount)).to.be.equal(
-          Number(ethers.utils.parseEther("20"))
+          Number(ethers.utils.parseEther("19"))
         );
       });
 
@@ -394,7 +400,7 @@ describe("DApp Testing", async function () {
         );
       });
 
-      it("The current available quota for any number different than 1 and 2 should be 24 ethers", async function () {
+      it("The current available quota for any number different than 1 and 2 should be 23.8 ethers", async function () {
         const quotaFor0 = await myContract.getAvailableQuotaInBetPerNumber(
           0,
           0
@@ -429,32 +435,32 @@ describe("DApp Testing", async function () {
         );
 
         expect(Number(quotaFor0)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotaFor3)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotaFor4)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotaFor5)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotaFor6)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotaFor7)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotaFor8)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotaFor9)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
       });
 
-      it("The current available quota for number 1 and number 2 should be 14 ethers", async function () {
+      it("The current available quota for number 1 and number 2 should be 14.3 ethers", async function () {
         const quotaFor1 = await myContract.getAvailableQuotaInBetPerNumber(
           0,
           1
@@ -465,22 +471,22 @@ describe("DApp Testing", async function () {
         );
 
         expect(Number(quotaFor1)).to.be.equal(
-          Number(ethers.utils.parseEther("14"))
+          Number(ethers.utils.parseEther("14.3"))
         );
         expect(Number(quotaFor2)).to.be.equal(
-          Number(ethers.utils.parseEther("14"))
+          Number(ethers.utils.parseEther("14.3"))
         );
       });
 
-      it("Get max amount in bet for number 1 and number 2 should be equal to 10 ethers", async function () {
+      it("Get max amount in bet for number 1 and number 2 should be equal to 9.5 ethers", async function () {
         const maxAmountFor1 = await myContract.getMaxBetAmountInBet(0, 1);
         const maxAmountFor2 = await myContract.getMaxBetAmountInBet(0, 2);
 
         expect(Number(maxAmountFor1)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
         expect(Number(maxAmountFor2)).to.be.equal(
-          Number(ethers.utils.parseEther("10"))
+          Number(ethers.utils.parseEther("9.5"))
         );
       });
 
@@ -508,34 +514,34 @@ describe("DApp Testing", async function () {
         const quotas = await myContract.getAvailableQuotaInBet(0);
 
         expect(Number(quotas[0].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotas[1].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("14"))
+          Number(ethers.utils.parseEther("14.3"))
         );
         expect(Number(quotas[2].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("14"))
+          Number(ethers.utils.parseEther("14.3"))
         );
         expect(Number(quotas[3].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotas[4].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotas[5].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotas[6].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotas[7].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotas[8].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
         expect(Number(quotas[9].availableQuota)).to.be.equal(
-          Number(ethers.utils.parseEther("24"))
+          Number(ethers.utils.parseEther("23.8"))
         );
       });
     });
@@ -654,7 +660,7 @@ describe("DApp Testing", async function () {
         const bet = await myContract.bets(0);
 
         expect(Number(bet.amount)).to.be.equal(
-          Number(ethers.utils.parseEther("40"))
+          Number(ethers.utils.parseEther("38"))
         );
         expect(Number(currentBalance)).to.be.equal(
           previousBalance + Number(ethers.utils.parseEther("20"))

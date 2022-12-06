@@ -23,6 +23,7 @@ contract Lotero is Ownable {
 
     struct User {
         address user; //the user
+        uint256 moneyAdded; //money added to contract
         uint256 moneyEarned; //money earned by the user
         uint256 moneyClaimed; //amount of money the user can claim
         bool active; //if true, user has activated the account
@@ -134,18 +135,17 @@ contract Lotero is Ownable {
             currentUser.moneyEarned = 0;
             currentUser.moneyClaimed = 0;
             currentUser.referringUserAddress = referringUserAddress;
-
-            //Add to users array
-            users.push(currentUser);
-
-            //Add to map
-            infoPerUser[msg.sender] = currentUser;
         }
+
+        //Update user info
+        currentUser.moneyAdded += currentPlayer.amount;
+        users.push(currentUser);
+        infoPerUser[msg.sender] = currentUser;
 
         //Update general stats
         totalMoneyAdded += currentPlayer.amount;
 
-        totalMoneyEarnedByDevs += getDevFee(currentPlayer.amount);
+        totalMoneyEarnedByDevs += getDevFee(msg.value);
     }
 
     /**
