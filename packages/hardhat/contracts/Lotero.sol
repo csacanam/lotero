@@ -461,6 +461,8 @@ contract Lotero is Ownable {
         }
     }
 
+    function claimPlayerEarnings() public {}
+
     /**
      *@dev Get total team members in contract
      */
