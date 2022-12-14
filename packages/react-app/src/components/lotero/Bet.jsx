@@ -36,6 +36,7 @@ export default function Bet({ contract, address, provider, price, tx, activeBet 
   const [factor, setFactor] = useState(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [availableQuotaInBet, setAvailableQuotaInBet] = useState(0);
 
   let localProviderPollingTime = getRPCPollTime(provider);
   const balance = useBalance(provider, address, localProviderPollingTime);
@@ -51,6 +52,7 @@ export default function Bet({ contract, address, provider, price, tx, activeBet 
   useEffect(async () => {
     if (contract) {
       setFactor(await contract.MAX_WIN_MULTIPLIER());
+      setAvailableQuotaInBet(await contract.getAvailableQuotaInBet(activeBet));
     }
   }, [contract, !factor]);
 
@@ -84,21 +86,33 @@ export default function Bet({ contract, address, provider, price, tx, activeBet 
   ];
   const onSubmit = async () => {
     if (bet <= floatBalance) {
-      setIsSubmitting(true);
-      await tx(contract.bet(activeBet, number, address, { value: utils.parseEther(betVal) }), result => {
-        setIsSubmitting(false);
-        if (!result.error) {
-          setIsSubmitted(true);
-          notification.success({
-            message: "New bet",
-            description: "Congratulations! your bet has been received!",
-            placement: "bottomRight",
-          });
-          setBet(0);
-          setBetVal("0");
-          setTimeout(() => setIsSubmitted(false), 1000);
-        }
-      });
+      console.log("Available --->>>>>>>> ", availableQuotaInBet[number].toNumber());
+      if (bet <= availableQuotaInBet[number].toNumber()) {
+        setIsSubmitting(true);
+        await tx(
+          contract.bet(activeBet, number, address, { value: utils.parseEther(betVal) }),
+          result => {
+            setIsSubmitting(false);
+            if (!result.error) {
+              setIsSubmitted(true);
+              notification.success({
+                message: "New bet",
+                description: "Congratulations! your bet has been received!",
+                placement: "bottomRight",
+              });
+              setBet(0);
+              setBetVal("0");
+              setTimeout(() => setIsSubmitted(false), 1000);
+            }
+          },
+        );
+      } else {
+        notification.error({
+          message: "New bet",
+          description: `The available quota for the number you selected is ${availableQuotaInBet}. Lower the bet amount to participate.`,
+          placement: "bottomRight",
+        });
+      }
     } else {
       notification.error({
         message: "New bet",

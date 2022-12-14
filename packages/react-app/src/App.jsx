@@ -28,7 +28,7 @@ import externalContracts from "./contracts/external_contracts";
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
 import { useStaticJsonRPC } from "./hooks";
-import { Lotero, Rules } from "./views";
+import { Home, Lotero, Rewards, Rules } from "./views";
 
 const { ethers } = require("ethers");
 const DEBUG = process.env.NODE_ENV === "development";
@@ -202,23 +202,14 @@ function App() {
             <Menu.Item key="/">
               <Link to="/">Home</Link>
             </Menu.Item>
-            <Menu.Item key="/rules">
-              <Link to="/rules">Rules</Link>
-            </Menu.Item>
             <Menu.Item key="/rewards">
               <Link to="/rewards">Claim rewards</Link>
-            </Menu.Item>
-            <Menu.Item key="/invite">
-              <Link to="/invite">Invite friends</Link>
             </Menu.Item>
             <Menu.Item key="/debug">
               <Link to="/debug">Debug Contracts</Link>
             </Menu.Item>
           </Menu>
           <Switch>
-            <Route exact path="/rules">
-              <Rules />
-            </Route>
             <Route exact path="/debug">
               <Contract
                 name="Lotero"
@@ -230,13 +221,11 @@ function App() {
                 contractConfig={contractConfig}
               />
             </Route>
+            <Route exact path="/rewards">
+              <Rewards />
+            </Route>
             <Route path="/">
-              <div>
-                <p>
-                  Lotero.co es una aplicación descentralizada (DApp) que le permite a las personas
-                  apostar sus criptomonedas y multiplicarlas por 5 con una probabilidad del 10%.
-                </p>
-              </div>
+              <Home contract={writeContracts.Lotero} provider={localProvider} price={price} />
             </Route>
           </Switch>
         </section>
